@@ -120,6 +120,9 @@ main{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px)
 .seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .search{flex:1;min-width:160px;max-width:320px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 
+.sortsel{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+.sortsel select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.ghead{font-size:15px;margin:6px 0 -6px;display:flex;gap:8px;align-items:baseline}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;min-width:0}
 .card:hover{border-color:var(--accent)}
@@ -311,7 +314,7 @@ td.r,th.r{text-align:right}
 const COLS = ['geckos','logs','pairings','clutches','todos'];
 const S = {geckos:[],logs:[],pairings:[],clutches:[],todos:[]};
 let mode = 'loading', db = null, dl = null, loadErr = '';
-const ui = { calMonth:null, calDay:null, view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
+const ui = { gSort:(()=>{ try{ return localStorage.getItem('cg-gsort') || 'code'; }catch(e){ return 'code'; } })(), calMonth:null, calDay:null, view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
 
 // 品系分两大类：基因（可遗传、已证实的单基因）和表现（多基因的花纹/底色）
 const MORPH_GROUPS = [
@@ -388,6 +391,7 @@ const daysSince = s => { const d = parseD(s); if(!d) return null; const t = pars
 const addDays = (s, n) => { const d = parseD(s); d.setDate(d.getDate()+n); return fmtD(d); };
 const ago = n => n == null ? '—' : n === 0 ? '今天' : n === 1 ? '昨天' : n < 0 ? `${-n}天后` : `${n}天前`;
 function age(s){ const n = daysSince(s); if(n==null) return '—'; if(n < 60) return `${n}天`; const m = Math.floor(n/30.44); return m < 24 ? `${m}个月` : `${(m/12).toFixed(1)}岁`; }
+const cmpCode = (a, b) => { const ca = a.code||'', cb = b.code||''; if(!ca !== !cb) return ca ? -1 : 1; return ca.localeCompare(cb, 'zh', {numeric:true}) || (a.name||'').localeCompare(b.name||'', 'zh'); };
 const byId = id => S.geckos.find(g => g.id === id);
 const gname = id => { const g = byId(id); return g ? g.name : '（已删除）'; };
 const sexSym = s => s === 'M' ? '<span class="sex m" title="公">♂</span>' : s === 'F' ? '<span class="sex f" title="母">♀</span>' : '<span class="sex u" title="未定">?</span>';
@@ -728,11 +732,32 @@ function vGeckos(){
   const q = ui.q.trim().toLowerCase();
   let L = S.geckos.filter(g => (ui.statusFilter==='all' || (g.status||'active')===ui.statusFilter) && (ui.sexFilter==='all' || (g.sex||'U')===ui.sexFilter));
   if(q) L = L.filter(g => [g.name,g.code,(g.morphs||[]).join(' '),g.note,g.source].join(' ').toLowerCase().includes(q));
-  L.sort((a,b) => (a.code||a.name||'').localeCompare(b.code||b.name||'', 'zh'));
+  const byCode = (a,b) => cmpCode(a, b);
+  const sortBy = ui.gSort;
+  let groups;
+  if(sortBy === 'sex'){
+    groups = [['F','♀ 母'],['M','♂ 公'],['U','未定']].map(([k,t]) => ({t, L: L.filter(g => (g.sex||'U') === k).sort(byCode)}));
+  } else if(sortBy === 'gene'){
+    const order = MORPHS.filter(m => GENE_SET.has(m));
+    const key = g => order.filter(m => (g.morphs||[]).includes(m));
+    const M = new Map();
+    L.slice().sort(byCode).forEach(g => { const ks = key(g); const k = ks.join('|'); if(!M.has(k)) M.set(k, {ks, L:[]}); M.get(k).L.push(g); });
+    groups = [...M.values()].sort((a,b) => (!a.ks.length) - (!b.ks.length) || a.ks.length - b.ks.length || order.indexOf(a.ks[0]) - order.indexOf(b.ks[0]) || a.ks.join().localeCompare(b.ks.join()))
+      .map(x => ({t: x.ks.length ? x.ks.map(mzh).join(' + ') : '未填基因', L: x.L}));
+  } else if(sortBy === 'weight'){
+    groups = [{L: L.slice().sort((a,b) => (lastW(b.id)?.value ?? -1) - (lastW(a.id)?.value ?? -1) || byCode(a,b))}];
+  } else if(sortBy === 'acquired'){
+    const M = new Map();
+    L.slice().sort((a,b) => (b.acquired||'').localeCompare(a.acquired||'') || byCode(a,b)).forEach(g => { const k = g.acquired || ''; if(!M.has(k)) M.set(k, []); M.get(k).push(g); });
+    groups = [...M].map(([k, L]) => ({t: k ? `${k} 到家` : '未填到家日期', L}));
+  } else {
+    groups = [{L: L.slice().sort(byCode)}];
+  }
+  groups = groups.filter(x => x.L.length);
   const seg = (k, opts) => `<div class="seg">${opts.map(([v,t]) => `<button data-act="filter" data-k="${k}" data-v="${v}" class="${ui[k]===v?'on':''}">${t}</button>`).join('')}</div>`;
   return head('个体档案', `共 ${S.geckos.length} 只，在养 ${active().length} 只`, `<button class="btn pri" data-act="new-gecko">＋ 添加守宫</button>`) + `
-  <div class="toolbar">${seg('sexFilter',[['all','全部'],['M','♂ 公'],['F','♀ 母'],['U','未定']])}${seg('statusFilter',[['active','在养'],['all','全部状态'],['sold','已出售'],['dead','已离世']])}<input class="search" id="q" placeholder="搜索名字、编号、品系" value="${esc(ui.q)}"></div>
-  ${L.length ? `<div class="cards">${L.map(card).join('')}</div>` : '<p class="note">没有符合条件的个体。</p>'}`;
+  <div class="toolbar"><label class="sortsel"><span>排序</span><select id="gSort">${[['code','按编号'],['sex','按公母分组'],['gene','按基因分组'],['weight','按体重（重→轻）'],['acquired','按到家日期（新→旧）']].map(([v,t]) => `<option value="${v}" ${ui.gSort===v?'selected':''}>${t}</option>`).join('')}</select></label>${seg('sexFilter',[['all','全部'],['M','♂ 公'],['F','♀ 母'],['U','未定']])}${seg('statusFilter',[['active','在养'],['all','全部状态'],['sold','已出售'],['dead','已离世']])}<input class="search" id="q" placeholder="搜索名字、编号、品系" value="${esc(ui.q)}"></div>
+  ${L.length ? groups.map(x => `${x.t ? `<h3 class="ghead">${esc(x.t)} <span class="note">${x.L.length} 只</span></h3>` : ''}<div class="cards">${x.L.map(card).join('')}</div>`).join('') : '<p class="note">没有符合条件的个体。</p>'}`;
 }
 function card(g){
   const lw = lastW(g.id), lf = lastLog(g.id,'feed');
@@ -1248,6 +1273,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const t = e.target;
+  if(t.id === 'gSort'){ ui.gSort = t.value; try{ localStorage.setItem('cg-gsort', t.value); }catch(err){} render(); }
   if(t.id === 'logGecko'){ ui.logGecko = t.value; render(); }
   if(t.id === 'pedSel'){ ui.pedId = t.value; render(); }
   if(t.id === 'imp' && t.files[0]){ doImport(t.files[0]); t.value=''; }
