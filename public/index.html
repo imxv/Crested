@@ -580,6 +580,7 @@ function feedForecast(g, until){
   return out;
 }
 function weighForecast(g, until){
+  if(g.feedPaused) return [];
   const lw = lastW(g.id), t = today(), out = [];
   let d = lw ? addDays(lw.date, SET.weighDays) : t;
   if(d < t) d = t;
@@ -655,7 +656,7 @@ function calDayPanel(d, it){
   const pw = it.plan.pweight.filter(g => !(it.logs.weight||[]).some(l => l.geckoId === g.id));
   const plan = planRow('pfeed', pf, d === t ? `<button class="btn sm" data-act="batch" data-type="feed" data-date="${d}">记喂食</button>` : '')
     + planRow('pweight', pw, d === t ? `<button class="btn sm" data-act="batch" data-type="weight" data-date="${d}">记体重</button>` : '')
-    + (pausedG.length ? `<div class="task"><span class="pill">暂停喂食 ${pausedG.length}</span><div class="what"><div class="gnums">${nums(pausedG)}</div><small>只喷水，不参与喂食计划</small></div></div>` : '')
+    + (pausedG.length ? `<div class="task"><span class="pill">暂停喂食和称重 ${pausedG.length}</span><div class="what"><div class="gnums">${nums(pausedG)}</div><small>还没有饲养盒，只喷水</small></div></div>` : '')
     + it.hatch.map(c => { const p = S.pairings.find(x => x.id === c.pairingId); return `<div class="task"><span class="pill gold">出壳窗口</span><div class="what">${esc(gname(p?.femaleId))} 的蛋<small>产于 ${c.layDate}，60~90 天，到 ${addDays(c.layDate,90)} 为止</small></div></div>`; }).join('');
   const logs = ['feed','mist','weight','shed','clean','health','note'].filter(k => it.logs[k]?.length).map(k => {
     const L = it.logs[k];
@@ -696,7 +697,7 @@ function vOverview(){
       txt: `${fp.tier ? `${fp.tier.label} · 建议喂<b>${suggestTxt(fp.suggest)}</b> · ` : '未称重，按 '+SET.feedDays+' 天间隔 · '}${fp.lf ? `上次 ${ago(fp.n)}（${esc(fp.lf.food||'')}）` : '还没有喂食记录'}`,
       act:`<button class="btn sm" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':fp.suggest==='fruit'?FOODS[0]:''}">记喂食</button>`});
     const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null;
-    if(wn == null || wn >= SET.weighDays) tasks.push({p:3, g, html:`<span class="pill">该称重</span>`, txt: lw ? `上次 ${lw.value}g，${ago(wn)}` : '还没有体重记录', act:`<button class="btn sm" data-act="quick" data-type="weight" data-id="${g.id}">记体重</button>`});
+    if(!g.feedPaused && (wn == null || wn >= SET.weighDays)) tasks.push({p:3, g, html:`<span class="pill">该称重</span>`, txt: lw ? `上次 ${lw.value}g，${ago(wn)}` : '还没有体重记录', act:`<button class="btn sm" data-act="quick" data-type="weight" data-id="${g.id}">记体重</button>`});
   });
   S.pairings.filter(p => (p.status||'active')==='active').forEach(p => {
     const fw = lastW(p.femaleId);
@@ -774,7 +775,7 @@ function card(g){
   const st = g.status && g.status !== 'active' ? `<span class="pill">${GSTATUS[g.status]}</span>` : '';
   return `<button class="card ${g.status&&g.status!=='active'?'gone':''}" data-go="gecko-${g.id}">
     <div class="top"><span class="name">${sexSym(g.sex)} ${esc(g.name)}</span><span class="mono note">${esc(g.code||'')}</span></div>
-    <div>${sortMorphs(g.morphs||[]).map(morphTag).join('') || '<span class="note">未填品系</span>'}${g.tail==='dropped'?'<span class="tag">断尾</span>':''}${g.machi==='yes'?'<span class="tag">有町</span>':g.machi==='no'?'<span class="tag">无町</span>':''}${g.feedPaused && (g.status||'active')==='active'?'<span class="pill warn">暂停喂食</span>':''}${st}${sampleMark(g)}</div>
+    <div>${sortMorphs(g.morphs||[]).map(morphTag).join('') || '<span class="note">未填品系</span>'}${g.tail==='dropped'?'<span class="tag">断尾</span>':''}${g.machi==='yes'?'<span class="tag">有町</span>':g.machi==='no'?'<span class="tag">无町</span>':''}${g.feedPaused && (g.status||'active')==='active'?'<span class="pill warn">暂停喂食和称重</span>':''}${st}${sampleMark(g)}</div>
     <div class="meta"><div><small>体重</small><b>${lw ? lw.value+'g' : '—'}</b></div><div><small>年龄</small><b>${age(g.hatchDate)}</b></div><div><small>上次喂食</small><b>${lf ? ago(daysSince(lf.date)) : '—'}</b></div></div>
   </button>`;
 }
@@ -819,7 +820,7 @@ function vGecko(){
 function feedPanel(g){
   if((g.status||'active') !== 'active') return '';
   const fp = feedPlan(g);
-  if(fp.paused) return `<div class="panel"><div class="head" style="margin-bottom:6px"><h3>喂食方案</h3><span class="pill warn">暂停喂食</span></div><p class="note" style="margin:0">这只现在不参与喂食计划，只喷水。可以喂了以后，在「编辑档案」里把「喂食」改回「正常喂食」。</p></div>`;
+  if(fp.paused) return `<div class="panel"><div class="head" style="margin-bottom:6px"><h3>喂食方案</h3><span class="pill warn">暂停喂食和称重</span></div><p class="note" style="margin:0">这只现在不参与喂食和称重计划，只喷水。搬进饲养盒以后，在「编辑档案」里把「喂食和称重」改回「正常」。</p></div>`;
   if(!fp.tier) return `<div class="panel"><h3>喂食方案</h3><p class="note">还没有体重记录，先称一次重，就会按体重段给出虫子和果泥的比例和喂休节奏。现在按 ${SET.feedDays} 天间隔提醒。</p></div>`;
   const st = fp.paused ? '<span class="pill">暂停喂食</span>' : fp.newArrival ? '<span class="pill">刚到家，今天不喂</span>' : fp.n === 0 ? '<span class="pill ok">今天已喂</span>' : fp.overdue ? '<span class="pill bad">喂食逾期</span>' : fp.due ? '<span class="pill warn">今天该喂</span>' : '<span class="pill">今天休息</span>';
   return `<div class="panel"><div class="head" style="margin-bottom:8px"><h3>喂食方案 · ${fp.tier.label}${fp.manual?' <span class="note">手动指定</span>':''}</h3><div class="actions">${st}${fp.due?` <button class="btn sm pri" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':FOODS[0]}">记喂食（${suggestTxt(fp.suggest)}）</button>`:''}</div></div>
@@ -1053,7 +1054,7 @@ function geckoForm(g = {}, after){
     ${fld('状态', `<select name="status">${Object.entries(GSTATUS).map(([v,t])=>`<option value="${v}" ${(g.status||'active')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
     ${fld('是否断尾', `<select name="tail">${[['','未填'],['intact','完整（未断尾）'],['dropped','已断尾']].map(([v,t])=>`<option value="${v}" ${(g.tail||'')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
     ${fld('喂食方案', `<select name="planKey"><option value="">按最新体重自动分档</option>${PLAN.map(p=>`<option value="${p.key}" ${g.planKey===p.key?'selected':''}>固定为 ${p.label}（${p.rhythm}，虫${p.insect}:果泥${5-p.insect}）</option>`).join('')}</select>`)}
-    ${fld('喂食', `<select name="feedPaused"><option value="">正常喂食</option><option value="1" ${g.feedPaused?'selected':''}>暂停喂食（如还没有饲养盒，只喷水）</option></select>`)}
+    ${fld('喂食和称重', `<select name="feedPaused"><option value="">正常</option><option value="1" ${g.feedPaused?'selected':''}>暂停（还没有饲养盒，只喷水）</option></select>`)}
     ${fld('有町 / 无町', `<select name="machi">${[['','未填'],['yes','有町'],['no','无町']].map(([v,t])=>`<option value="${v}" ${(g.machi||'')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
     ${fld('出壳日期', `<input type="date" name="hatchDate" value="${esc(g.hatchDate)}">`)}
     ${fld('到家日期', `<input type="date" name="acquired" value="${esc(g.acquired)}">`)}
