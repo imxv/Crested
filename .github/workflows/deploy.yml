@@ -1,4 +1,4 @@
-# 推送到 production 分支后自动部署到 Cloudflare Pages（crested-gecko）。
+# 推送（或合并 PR）到 main 或 production 分支后自动部署到 Cloudflare Pages（crested-gecko）。
 # 只上传网页和后端，不动 D1 里的数据。
 # 需要在 GitHub 仓库 Settings → Secrets and variables → Actions 里加两个机密：
 #   CLOUDFLARE_API_TOKEN   权限：Account → Cloudflare Pages → Edit；Account → D1 → Edit
@@ -7,7 +7,7 @@ name: 部署到 Cloudflare
 
 on:
   push:
-    branches: [production]
+    branches: [main, production]
   workflow_dispatch:
 
 concurrency:
