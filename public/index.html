@@ -55,10 +55,12 @@ a{color:var(--accent)}
 .nav a svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
 .nav a:hover{background:var(--panel-2)}
 .nav a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
-.theme{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:0 8px}
-.theme button{flex:1;border:0;background:transparent;padding:5px 0;cursor:pointer;color:var(--muted);font-size:12px}
-.theme button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
-.side .foot{margin-top:auto;font-size:12px;color:var(--muted);padding:0 8px;display:flex;flex-direction:column;gap:4px}
+.side-bottom{margin-top:auto;display:flex;align-items:flex-end;gap:8px;padding:0 0 0 8px}
+.theme{flex:none}
+.theme button{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:transparent;cursor:pointer;color:var(--muted);padding:0}
+.theme button:hover{color:var(--fg);background:var(--panel-2)}
+.theme svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.side .foot{flex:1;min-width:0;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:6px;vertical-align:1px}
 .dot.cloud{background:var(--ok)} .dot.local{background:var(--warn)}
 
@@ -209,7 +211,7 @@ td.r,th.r{text-align:right}
   .side{flex-wrap:wrap;row-gap:6px}
   .brand{flex:1;min-width:0;padding:0}
   .theme{margin:0;flex:none;order:2}
-  .theme button{padding:4px 8px}
+  .side-bottom{order:2;margin:0;padding:0}
   .nav{order:3;flex-basis:100%;margin:0 -4px}
   .brand h1{font-size:18px;white-space:nowrap}
   .nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}
@@ -282,8 +284,7 @@ td.r,th.r{text-align:right}
   <aside class="side">
     <div class="brand"><h1>睫角守宫饲养台</h1><small>CRESTED GECKO LOG</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="theme" id="theme" role="group" aria-label="主题"></div>
-    <div class="foot" id="foot"></div>
+    <div class="side-bottom"><div class="foot" id="foot"></div><div class="theme" id="theme"></div></div>
   </aside>
   <main id="main">
     <div class="empty"><h2>正在读取守宫档案…</h2><p>数据从你的云端存储加载，通常一两秒。</p></div>
@@ -478,14 +479,20 @@ const ICONS = {
   calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/>'
 };
 const VIEWS = [['overview','总览'],['calendar','日历'],['geckos','个体档案'],['logs','日常记录'],['weights','体重统计'],['breeding','繁殖'],['pedigree','谱系图'],['data','数据']];
-const THEMES = [['system','自动'],['light','浅色'],['dark','深色']];
+const THEMES = [['system','跟随系统'],['light','浅色'],['dark','深色']];
+const THEME_ICON = {
+  system:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5z" fill="currentColor"/>',
+  light:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/>',
+  dark:'<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>'
+};
 let THEME = (()=>{ try{ return localStorage.getItem('cg-theme') || 'system'; }catch(e){ return 'system'; } })();
 function applyTheme(){ const r = document.documentElement; if(THEME === 'system') r.removeAttribute('data-cg'); else r.setAttribute('data-cg', THEME); }
 applyTheme();
 function renderNav(){
-  $('#theme').innerHTML = THEMES.map(([k,t]) => `<button data-act="theme" data-v="${k}" class="${THEME===k?'on':''}" title="${k==='system'?'跟随系统':''}">${t}</button>`).join('');
+  { const i = THEMES.findIndex(x => x[0] === THEME), nx = THEMES[(i+1) % THEMES.length];
+    $('#theme').innerHTML = `<button data-act="theme" data-v="${nx[0]}" title="主题：${THEMES[i][1]}（点击切换为${nx[1]}）" aria-label="主题：${THEMES[i][1]}，点击切换为${nx[1]}"><svg viewBox="0 0 24 24">${THEME_ICON[THEME]}</svg></button>`; }
   $('#nav').innerHTML = VIEWS.map(([k,t]) => `<a href="#${k}" class="${ui.view===k||(k==='geckos'&&ui.view==='gecko')?'on':''}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${t}</a>`).join('');
-  $('#foot').innerHTML = mode === 'server' ? '<span><i class="dot cloud"></i>已同步到 Cloudflare</span><span>换设备打开同一网址即可</span>' : mode === 'cloud' ? '<span><i class="dot cloud"></i>已同步到云端</span><span>换设备打开同一链接即可</span>'
+  $('#foot').innerHTML = mode === 'server' ? '<span><i class="dot cloud"></i>已同步到 Cloudflare</span><span>换台设备打开也能看</span>' : mode === 'cloud' ? '<span><i class="dot cloud"></i>已同步到云端</span><span>换设备打开同一链接即可</span>'
     : mode === 'local' ? '<span><i class="dot local"></i>仅保存在本浏览器</span>' : '<span><i class="dot"></i>连接中…</span>';
 }
 function route(){
