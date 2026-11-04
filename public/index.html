@@ -225,6 +225,56 @@ td.r,th.r{text-align:right}
   .tl .k{display:none}
   h1{font-size:22px}
 }
+
+/* calendar */
+.cal-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.cal{padding:12px}
+.cal-bar{display:flex;align-items:center;gap:6px;margin:0 2px 10px}
+.cal-bar h2{font-size:18px;font-family:var(--f-display)}
+.cal-wk,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cal-wk div{text-align:center;color:var(--muted);font-size:12px;padding:4px 0}
+.cal-grid{gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cd{all:unset;box-sizing:border-box;background:var(--panel);min-height:104px;padding:5px 5px 6px;display:flex;flex-direction:column;gap:3px;cursor:pointer;min-width:0;overflow:hidden}
+.cd:hover{background:var(--panel-2)}
+.cd:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.cd.out{background:var(--bg)} .cd.out .dn{opacity:.45} .cd.out .cchips{opacity:.6}
+.cd .dn{font-family:var(--f-mono);font-size:12px;color:var(--muted);min-width:24px;height:24px;line-height:24px;padding:0 4px;box-sizing:border-box;text-align:center;border-radius:99px;flex:none;white-space:nowrap;align-self:flex-start}
+.cal-day .task{align-items:flex-start}
+@media (max-width:620px){.cd .dn{align-self:center}}
+.cd.today .dn{background:var(--accent);color:var(--accent-fg);font-weight:600}
+.cd.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.cchips{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cc{display:block;font-size:11px;line-height:16px;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--panel-2);color:var(--muted);border:1px solid transparent}
+.cc.todo{background:var(--accent-soft);color:var(--accent)}
+.cc.todo.done{text-decoration:line-through;opacity:.6}
+.cc.todo.late{background:var(--bad-soft);color:var(--bad)}
+.cc.feed{background:var(--ok-soft);color:var(--ok)}
+.cc.mist{background:color-mix(in srgb,var(--c3) 14%,transparent);color:var(--c3)}
+.cc.weight{background:var(--warn-soft);color:var(--warn)}
+.cc.gold{background:var(--gold-soft);color:var(--gold)}
+.cc.bad{background:var(--bad-soft);color:var(--bad)}
+.cc.plan{background:transparent;border:1px dashed currentColor}
+.cc + .more,.more{font-size:11px;color:var(--muted);padding-left:5px}
+.cdots{display:none;gap:3px;flex-wrap:wrap;justify-content:center}
+.cdots i{width:5px;height:5px;border-radius:99px;background:var(--muted)}
+.cdots i.todo{background:var(--accent)} .cdots i.feed{background:var(--ok)} .cdots i.mist{background:var(--c3)} .cdots i.weight{background:var(--warn)} .cdots i.gold{background:var(--gold)} .cdots i.bad,.cdots i.late{background:var(--bad)}
+.cdots i.plan{background:transparent;box-shadow:inset 0 0 0 1px var(--ok)} .cdots i.weight.plan{box-shadow:inset 0 0 0 1px var(--warn)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 2px 0}
+.cal-legend .cc{display:inline-block}
+.cal-day{position:sticky;top:16px}
+.cal-sec{margin-top:12px}
+.cal-sec h4{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.06em}
+.tick{width:18px;height:18px;border:1.5px solid var(--muted);border-radius:5px;flex:none;cursor:pointer;position:relative}
+.tick:hover{border-color:var(--accent)}
+.tick.on{background:var(--accent);border-color:var(--accent)}
+.tick.on::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--accent-fg);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.struck{text-decoration:line-through;color:var(--muted)}
+@media (max-width:1100px){.cal-wrap{grid-template-columns:minmax(0,1fr)} .cal-day{position:static}}
+@media (max-width:620px){
+  .cal{padding:8px}
+  .cd{min-height:54px;align-items:center;padding:4px 2px}
+  .cchips{display:none} .cdots{display:flex}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -246,7 +296,7 @@ td.r,th.r{text-align:right}
 const COLS = ['geckos','logs','pairings','clutches','todos'];
 const S = {geckos:[],logs:[],pairings:[],clutches:[],todos:[]};
 let mode = 'loading', db = null, dl = null, loadErr = '';
-const ui = { view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
+const ui = { calMonth:null, calDay:null, view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
 
 const MORPHS = ['Harlequin 斑纹','Extreme Harlequin 极斑','Pinstripe 直线','Flame 火焰','Dalmatian 斑点','Super Dalmatian 超斑点','Tiger 虎纹','Brindle 虎斑','Bicolor 双色','Tricolor 三色','Patternless 无纹','Lilly White 莉莉白','Axanthic 无黄','Cappuccino 卡布奇诺','Phantom 幻影','Quad stripe 四线','Orange stripe 橙纹','Cream 奶油','Red base 红底','Yellow base 黄底','Black base 黑底'];
 const MORPH_ALIAS = {'Pinstripe 侧线':'Pinstripe 直线','Red 红':'Red base 红底','Yellow 黄':'Yellow base 黄底','Dark base 暗底':'Black base 黑底','Orange 橙':'Orange stripe 橙纹'};
@@ -424,9 +474,10 @@ const ICONS = {
   weights:'<path d="M4 19h16"/><path d="M6 15l4-5 3 3 5-7"/>',
   breeding:'<ellipse cx="9" cy="13" rx="4" ry="5"/><ellipse cx="16" cy="12" rx="3.5" ry="4.5"/>',
   pedigree:'<circle cx="5" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 12h5V6h5M12 12v6h5"/>',
-  data:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>'
+  data:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/>'
 };
-const VIEWS = [['overview','总览'],['geckos','个体档案'],['logs','日常记录'],['weights','体重统计'],['breeding','繁殖'],['pedigree','谱系图'],['data','数据']];
+const VIEWS = [['overview','总览'],['calendar','日历'],['geckos','个体档案'],['logs','日常记录'],['weights','体重统计'],['breeding','繁殖'],['pedigree','谱系图'],['data','数据']];
 const THEMES = [['system','自动'],['light','浅色'],['dark','深色']];
 let THEME = (()=>{ try{ return localStorage.getItem('cg-theme') || 'system'; }catch(e){ return 'system'; } })();
 function applyTheme(){ const r = document.documentElement; if(THEME === 'system') r.removeAttribute('data-cg'); else r.setAttribute('data-cg', THEME); }
@@ -450,7 +501,7 @@ function render(){
   const m = $('#main');
   if(mode === 'loading') return;
   if(mode === 'login'){ m.innerHTML = vLogin(); setTimeout(()=>$('#pw')?.focus(), 30); return; }
-  const fn = {overview:vOverview, geckos:vGeckos, gecko:vGecko, logs:vLogs, weights:vWeights, breeding:vBreeding, pedigree:vPedigree, data:vData}[ui.view] || vOverview;
+  const fn = {overview:vOverview, calendar:vCalendar, geckos:vGeckos, gecko:vGecko, logs:vLogs, weights:vWeights, breeding:vBreeding, pedigree:vPedigree, data:vData}[ui.view] || vOverview;
   const banner = mode === 'local' ? `<div class="banner">${esc(loadErr)}，现在的数据只存在这个浏览器里。请在 Claude 里登录后打开这个页面，数据才会保存到云端。</div>` : '';
   m.innerHTML = banner + fn();
   if(ui.view === 'weights' || ui.view === 'gecko') afterCharts();
@@ -461,6 +512,124 @@ function emptyState(title, text, btns){
 }
 const noGeckos = () => emptyState('还没有守宫档案', '先添加你的第一只睫角守宫：名字、性别、品系、出壳日期。之后就能记录喂食、喷水、称重和繁殖。想先看看效果，可以载入一组示例数据，随时在「数据」页一键清除。',
   `<button class="btn pri" data-act="new-gecko">＋ 添加守宫</button><button class="btn" data-act="load-sample">载入示例数据</button>`);
+
+// ===== Calendar =====
+const calMonth = () => ui.calMonth || today().slice(0,7);
+const CAL_HORIZON = 90; // 往后最多推算多少天
+const CAL_KIND = {
+  todo:{t:'待办', c:'todo'}, feed:{t:'喂食', c:'feed'}, mist:{t:'喷水', c:'mist'}, weight:{t:'称重', c:'weight'},
+  shed:{t:'蜕皮', c:'other'}, clean:{t:'清洁', c:'other'}, health:{t:'健康', c:'bad'}, note:{t:'备注', c:'other'},
+  pfeed:{t:'该喂', c:'feed plan'}, pweight:{t:'该称重', c:'weight plan'}, hatch:{t:'出壳窗口', c:'gold'}
+};
+// 按喂食方案往后推算哪些天该喂（只推算今天及以后）
+function feedForecast(g, until){
+  const fp = feedPlan(g), t = today(), out = [];
+  if(fp.newArrival) return out;
+  const r = fp.tier ? fp.tier.rhythm : null;
+  const pat = r ? r.split('') : ['喂', ...Array(Math.max(0, SET.feedDays-1)).fill('休')];
+  const posAfterFeed = streak => (r === '喂喂休' && streak >= 2) ? 1 : 0;
+  let base, pos;
+  if(fp.due){ out.push(t); base = t; pos = (r === '喂喂休' && fp.n === 1 && feedStreak(g.id) === 1) ? 1 : 0; }
+  else if(fp.lf){ base = fp.lf.date; pos = posAfterFeed(feedStreak(g.id)); }
+  else return out;
+  for(let k = 1; ; k++){
+    const d = addDays(base, k); if(d > until) break;
+    if(pat[(pos + k) % pat.length] === '喂' && d > t) out.push(d);
+  }
+  return out;
+}
+function weighForecast(g, until){
+  const lw = lastW(g.id), t = today(), out = [];
+  let d = lw ? addDays(lw.date, SET.weighDays) : t;
+  if(d < t) d = t;
+  if(lw && lw.date === t) d = addDays(t, SET.weighDays);
+  for(; d <= until; d = addDays(d, SET.weighDays)) out.push(d);
+  return out;
+}
+// 某段日期内每天的事项：{date: {todos:[], logs:{type:[log]}, plan:{pfeed:[g], pweight:[g]}, hatch:[clutch]}}
+function calItems(from, to){
+  const M = {}; const at = d => M[d] || (M[d] = {todos:[], logs:{}, plan:{pfeed:[], pweight:[]}, hatch:[]});
+  S.todos.forEach(x => { if(x.date && x.date >= from && x.date <= to) at(x.date).todos.push(x); });
+  S.logs.forEach(l => { if(l.date && l.date >= from && l.date <= to){ const o = at(l.date).logs; (o[l.type] || (o[l.type] = [])).push(l); } });
+  const t = today(), until = [to, addDays(t, CAL_HORIZON)].sort()[0];
+  if(until >= t) active().forEach(g => {
+    feedForecast(g, until).forEach(d => { if(d >= from) at(d).plan.pfeed.push(g); });
+    weighForecast(g, until).forEach(d => { if(d >= from) at(d).plan.pweight.push(g); });
+  });
+  S.clutches.filter(c => (c.status||'incubating') === 'incubating' && c.layDate).forEach(c => {
+    const d = addDays(c.layDate, 60); if(d >= from && d <= to) at(d).hatch.push(c);
+  });
+  return M;
+}
+function calChips(it, d){
+  const chips = [], t = today();
+  const todos = it.todos.slice().sort((a,b) => (a.done?1:0) - (b.done?1:0));
+  todos.forEach(x => chips.push(`<span class="cc todo ${x.done?'done':''} ${!x.done && d < t ? 'late':''}">${esc(x.text)}</span>`));
+  it.hatch.forEach(() => chips.push(`<span class="cc gold">预计出壳</span>`));
+  ['feed','mist','weight','shed','clean','health','note'].forEach(k => { const L = it.logs[k]; if(L && L.length){ const n = new Set(L.map(l => l.geckoId)).size; chips.push(`<span class="cc ${CAL_KIND[k].c}">${CAL_KIND[k].t}${n>1?` ${n}`:''}</span>`); } });
+  const pf = it.plan.pfeed.filter(g => !(it.logs.feed||[]).some(l => l.geckoId === g.id));
+  if(pf.length) chips.push(`<span class="cc feed plan">该喂 ${pf.length}</span>`);
+  const pw = it.plan.pweight.filter(g => !(it.logs.weight||[]).some(l => l.geckoId === g.id));
+  if(pw.length) chips.push(`<span class="cc weight plan">该称重 ${pw.length}</span>`);
+  return chips;
+}
+function vCalendar(){
+  const t = today(), ym = calMonth(), [y, m] = ym.split('-').map(Number);
+  const first = new Date(y, m-1, 1), lead = (first.getDay() + 6) % 7; // 周一开头
+  const start = fmtD(new Date(y, m-1, 1 - lead));
+  const days = Array.from({length: 42}, (_, i) => addDays(start, i));
+  const rows = days[35].slice(0,7) === ym ? 6 : 5, cells = days.slice(0, rows*7);
+  const sel = ui.calDay || t;
+  const M = calItems([cells[0], sel].sort()[0], [cells[cells.length-1], sel].sort()[1]);
+  const empty = {todos:[], logs:{}, plan:{pfeed:[], pweight:[]}, hatch:[]};
+  const grid = cells.map(d => {
+    const it = M[d] || empty, chips = calChips(it, d), dn = +d.slice(8);
+    const cls = [d.slice(0,7) !== ym ? 'out' : '', d === t ? 'today' : '', d === sel ? 'sel' : '', d < t ? 'past' : ''].join(' ');
+    const dots = chips.map(c => `<i class="${(c.match(/class="cc ([^"]*)"/)||[])[1]||''}"></i>`).slice(0,6).join('');
+    return `<button class="cd ${cls}" data-act="cal-day" data-v="${d}"><span class="dn">${dn === 1 ? `${+d.slice(5,7)}月` : dn}</span><span class="cchips">${chips.slice(0,4).join('')}${chips.length>4?`<span class="more">+${chips.length-4}</span>`:''}</span><span class="cdots">${dots}</span></button>`;
+  }).join('');
+  const wk = ['一','二','三','四','五','六','日'].map(w => `<div>${w}</div>`).join('');
+  return head('日历', '按天查看待办、照料记录和接下来该做的事', `<button class="btn pri" data-act="new-todo" data-date="${sel}">＋ 添加待办</button>`) + `
+  <div class="cal-wrap">
+    <div class="panel cal">
+      <div class="cal-bar"><h2 class="mono">${y} 年 ${m} 月</h2><span style="flex:1"></span>
+        <button class="btn sm" data-act="cal-move" data-v="-1" aria-label="上个月">‹</button><button class="btn sm" data-act="cal-today">今天</button><button class="btn sm" data-act="cal-move" data-v="1" aria-label="下个月">›</button></div>
+      <div class="cal-wk">${wk}</div>
+      <div class="cal-grid">${grid}</div>
+      <p class="note cal-legend"><span class="cc todo">待办</span><span class="cc feed">已喂</span><span class="cc feed plan">该喂</span><span class="cc mist">喷水</span><span class="cc weight">称重</span><span class="cc gold">出壳</span>　虚线 = 按方案推算</p>
+    </div>
+    ${calDayPanel(sel, M[sel] || empty)}
+  </div>`;
+}
+function calDayPanel(d, it){
+  const t = today(), n = daysSince(d), wd = '日一二三四五六'[parseD(d).getDay()];
+  const rel = n === 0 ? '今天' : n === 1 ? '昨天' : n === -1 ? '明天' : n > 0 ? `${n} 天前` : `${-n} 天后`;
+  const sec = (title, body) => body ? `<div class="cal-sec"><h4>${title}</h4>${body}</div>` : '';
+  const todos = it.todos.slice().sort((a,b) => (a.done?1:0)-(b.done?1:0)).map(x => `<div class="task"><span class="tick ${x.done?'on':''}" data-act="${x.done?'undo-todo':'done-todo'}" data-id="${x.id}" role="button" title="${x.done?'改回未完成':'标记完成'}"></span><div class="what ${x.done?'struck':''}">${esc(x.text)}${x.note?`<small>${esc(x.note)}</small>`:''}</div>${!x.done && d < t ? '<span class="pill bad">逾期</span>' : ''}<button class="btn sm ghost" data-act="edit-todo" data-id="${x.id}">编辑</button></div>`).join('');
+  const planRow = (k, gs, btn) => gs.length ? `<div class="task"><span class="pill ${k==='pfeed'?'warn':''}">${CAL_KIND[k].t}</span><div class="what">${gs.map(g => `<a href="#gecko-${g.id}">${esc(g.name)}</a>`).join('、')}${k==='pfeed'?`<small>${gs.map(g => { const fp = feedPlan(g); return fp.tier ? `${esc(g.name)} ${fp.tier.rhythm}` : `${esc(g.name)} 每${SET.feedDays}天`; }).join(' · ')}</small>`:''}</div>${btn}</div>` : '';
+  const pf = it.plan.pfeed.filter(g => !(it.logs.feed||[]).some(l => l.geckoId === g.id));
+  const pw = it.plan.pweight.filter(g => !(it.logs.weight||[]).some(l => l.geckoId === g.id));
+  const plan = planRow('pfeed', pf, d === t ? `<button class="btn sm" data-act="batch" data-type="feed" data-date="${d}">记喂食</button>` : '')
+    + planRow('pweight', pw, d === t ? `<button class="btn sm" data-act="batch" data-type="weight" data-date="${d}">记体重</button>` : '')
+    + it.hatch.map(c => { const p = S.pairings.find(x => x.id === c.pairingId); return `<div class="task"><span class="pill gold">出壳窗口</span><div class="what">${esc(gname(p?.femaleId))} 的蛋<small>产于 ${c.layDate}，60~90 天，到 ${addDays(c.layDate,90)} 为止</small></div></div>`; }).join('');
+  const logs = ['feed','mist','weight','shed','clean','health','note'].filter(k => it.logs[k]?.length).map(k => {
+    const L = it.logs[k];
+    const names = L.map(l => { const extra = k==='weight' ? ` <b class="mono">${l.value}g</b>` : k==='feed' && l.ate===false ? ' <span class="pill warn">拒食</span>' : ''; return `<a href="#gecko-${l.geckoId}">${esc(gname(l.geckoId))}</a>${extra}`; }).join('、');
+    const foods = k==='feed' ? [...new Set(L.map(l => l.food).filter(Boolean))].map(esc).join('、') : '';
+    const notes = [...new Set(L.map(l => l.note).filter(Boolean))].map(esc).join('；');
+    return `<div class="task"><span class="pill ok">${LOGT[k]?.t||k}</span><div class="what">${names}${foods||notes?`<small>${[foods, notes].filter(Boolean).join(' · ')}</small>`:''}</div></div>`;
+  }).join('');
+  const nothing = !todos && !plan && !logs;
+  return `<div class="panel cal-day">
+    <div class="head" style="margin-bottom:4px"><div><h3>${+d.slice(5,7)} 月 ${+d.slice(8)} 日 · 周${wd}</h3><p class="note" style="margin:0">${rel}</p></div></div>
+    ${sec('待办', todos)}
+    ${d >= t ? sec(d === t ? '今天还要做' : '按方案推算', plan) : ''}
+    ${sec(d > t ? '已有记录' : '照料记录', logs)}
+    ${nothing ? `<p class="note">${d < t ? '这一天没有记录。' : '这一天还没有安排。'}</p>` : ''}
+    <div class="quick" style="margin-top:12px"><button class="btn sm" data-act="new-todo" data-date="${d}">＋ 待办</button>${d <= t ? `<button class="btn sm" data-act="batch" data-type="feed" data-date="${d}">${d < t ? '补记' : '记'}喂食</button><button class="btn sm" data-act="batch" data-type="mist" data-date="${d}">${d < t ? '补记' : '记'}喷水</button><button class="btn sm" data-act="batch" data-type="weight" data-date="${d}">${d < t ? '补记' : '记'}体重</button>` : ''}</div>
+    ${d > t ? '<p class="note" style="margin-top:10px">「该喂」「该称重」是按喂食方案和称重间隔推算的，实际记录后会自动顺延。</p>' : ''}
+  </div>`;
+}
 
 // ===== Overview =====
 function vOverview(){
@@ -866,11 +1035,11 @@ function logForm(l){
   $('#mform [name=type]').addEventListener('change', e => { const d = fd(); logForm({...l, ...d, type:e.target.value, value: d.value?parseFloat(d.value):l.value}); });
 }
 
-function batchForm(type='feed'){
+function batchForm(type='feed', date){
   const A = active();
   const body = `<div class="form">
     ${fld('类型', `<select name="type">${['feed','mist','weight','clean'].map(k=>`<option value="${k}" ${type===k?'selected':''}>${LOGT[k].t}</option>`).join('')}</select>`)}
-    ${fld('日期', `<input type="date" name="date" value="${today()}">`)}
+    ${fld('日期', `<input type="date" name="date" value="${esc(date||today())}">`)}
     ${type==='feed' ? fld('食物', `<select name="food">${FOODS.map(f=>`<option>${f}</option>`).join('')}</select>`) + fld('份量', `<input name="amount" placeholder="可选">`) : ''}
     <div class="fld full"><span>${type==='weight'?'逐个填写体重（g），留空的跳过':'选择个体'} ${type!=='weight'?'<button type="button" class="btn sm ghost" data-act="check-all">全选</button>':''}</span>
     ${type==='weight' ? `<div class="tbl-wrap"><table><tbody>${A.map(g => { const lw = lastW(g.id); return `<tr><td>${sexSym(g.sex)} ${esc(g.name)}</td><td class="note mono">${lw?`上次 ${lw.value}g · ${ago(daysSince(lw.date))}`:'未称过'}</td><td style="width:110px"><input name="w-${g.id}" inputmode="decimal" style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);width:100%"></td></tr>`; }).join('')}</tbody></table></div>`
@@ -888,7 +1057,7 @@ function batchForm(type='feed'){
     for(const r of rows) await put('logs', r);
     toast(`已记录 ${rows.length} 条`);
   });
-  $('#mform [name=type]').addEventListener('change', e => batchForm(e.target.value));
+  $('#mform [name=type]').addEventListener('change', e => batchForm(e.target.value, $('#mform [name=date]').value));
 }
 
 function pairForm(p = {}){
@@ -1000,7 +1169,11 @@ document.addEventListener('click', async e => {
   switch(act){
     case 'close': closeModal(); break;
     case 'new-gecko': geckoForm(); break;
-    case 'new-todo': todoForm({date: today()}); break;
+    case 'new-todo': todoForm({date: a.dataset.date || today()}); break;
+    case 'undo-todo': { const x = S.todos.find(t=>t.id===id); if(x){ const {doneAt, ...rest} = x; await put('todos', {...rest, done:false}); toast('已改回未完成'); } break; }
+    case 'cal-move': { const [y,m] = calMonth().split('-').map(Number); const d = new Date(y, m-1+(+a.dataset.v), 1); ui.calMonth = fmtD(d).slice(0,7); render(); break; }
+    case 'cal-today': ui.calMonth = today().slice(0,7); ui.calDay = today(); render(); break;
+    case 'cal-day': ui.calDay = a.dataset.v; if(a.dataset.v.slice(0,7) !== calMonth()) ui.calMonth = a.dataset.v.slice(0,7); render(); break;
     case 'edit-todo': todoForm({...S.todos.find(x=>x.id===id)}); break;
     case 'del-todo': confirmBox('删除这条待办？', () => del('todos', id).then(()=>toast('已删除'))); break;
     case 'done-todo': { const x = S.todos.find(t=>t.id===id); if(x){ await put('todos', {...x, done:true, doneAt: today()}); toast('已完成'); } break; }
@@ -1009,7 +1182,7 @@ document.addEventListener('click', async e => {
     case 'quick': logForm({geckoId:id, type:a.dataset.type, date:today(), food:a.dataset.food||undefined}); break;
     case 'edit-log': logForm({...S.logs.find(l=>l.id===id)}); break;
     case 'del-log': confirmBox('删除这条记录？', () => del('logs', id).then(()=>toast('已删除'))); break;
-    case 'batch': batchForm(a.dataset.type||'feed'); break;
+    case 'batch': batchForm(a.dataset.type||'feed', a.dataset.date); break;
     case 'check-all': { const cbs = [...$('#mform').querySelectorAll('input[name=g]')]; const all = cbs.every(c=>c.checked); cbs.forEach(c=>c.checked=!all); break; }
     case 'mist-all': { e.preventDefault(); const A = active().filter(g => lastLog(g.id,'mist')?.date !== today()); if(!A.length){ toast('今天都已经喷过水了'); break; } for(const g of A) await put('logs', {geckoId:g.id, type:'mist', date:today()}); toast(`已为 ${A.length} 只记录喷水`); break; }
     case 'theme': THEME = a.dataset.v; try{ localStorage.setItem('cg-theme', THEME); }catch(err){} applyTheme(); render(); break;
