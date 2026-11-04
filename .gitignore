@@ -1,0 +1,6 @@
+node_modules/
+.wrangler/
+.dev.vars
+.seeded
+seed.sql
+seed.json

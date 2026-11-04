@@ -1,0 +1,8 @@
+name = "crested-gecko"
+pages_build_output_dir = "public"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "crested-gecko-db"
+database_id = "cf430eed-6466-4fa2-b38b-2c1e6959a501"

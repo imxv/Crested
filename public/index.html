@@ -1,0 +1,1062 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>睫角守宫饲养台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 左侧竖排导航 + 主工作区；手机端导航变为顶部横向滚动条。夜行树栖：苔绿底色、哈利金点缀 */
+:root{
+  --bg:#f3f5ef; --panel:#ffffff; --panel-2:#eaeee3; --line:#d6dccb;
+  --fg:#1e2619; --muted:#5f6b56; --accent:#3f6b2e; --accent-fg:#ffffff; --accent-soft:#dfe9d4;
+  --gold:#b7841c; --gold-soft:#f5e8c8; --fruit:#3f6b2e;
+  --ok:#2f7a45; --warn:#a86a0c; --bad:#b23a2e; --warn-soft:#f8ead2; --bad-soft:#f6dcd8; --ok-soft:#d9eedd;
+  --male:#2f63a8; --female:#b04577; --unk:#7a7d72;
+  --c1:#3f6b2e; --c2:#b7841c; --c3:#2f63a8; --c4:#b04577; --c5:#6d4fa3; --c6:#1d8a86;
+  --f-display:"ZCOOL XiaoWei","Songti SC","STSong","Noto Serif SC",serif;
+  --f-body:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-cg="light"]){
+  --bg:#131416; --panel:#1b1c1f; --panel-2:#24262a; --line:#303237;
+  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19;
+  --gold:#e2b45f; --gold-soft:#332a19; --fruit:#e88fa8;
+  --ok:#7cc79a; --warn:#e8a857; --bad:#f08072; --warn-soft:#352816; --bad-soft:#3a1f1c; --ok-soft:#1b2e23;
+  --male:#7fb0ee; --female:#ee90b6; --unk:#a7a8ae;
+  --c1:#e2b45f; --c2:#7fb0ee; --c3:#ee90b6; --c4:#7cc79a; --c5:#b9a0ec; --c6:#f0a070;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]:not([data-cg="light"]),:root[data-cg="dark"]{
+  --bg:#131416; --panel:#1b1c1f; --panel-2:#24262a; --line:#303237;
+  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19;
+  --gold:#e2b45f; --gold-soft:#332a19; --fruit:#e88fa8;
+  --ok:#7cc79a; --warn:#e8a857; --bad:#f08072; --warn-soft:#352816; --bad-soft:#3a1f1c; --ok-soft:#1b2e23;
+  --male:#7fb0ee; --female:#ee90b6; --unk:#a7a8ae;
+  --c1:#e2b45f; --c2:#7fb0ee; --c3:#ee90b6; --c4:#7cc79a; --c5:#b9a0ec; --c6:#f0a070;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.02em}
+h1{font-size:28px} h2{font-size:21px} h3{font-size:17px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px}
+.brand{padding:0 8px;display:flex;flex-direction:column;gap:2px}
+.brand h1{font-size:24px;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px;letter-spacing:.08em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--fg)}
+.nav a svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.nav a:hover{background:var(--panel-2)}
+.nav a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.theme{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:0 8px}
+.theme button{flex:1;border:0;background:transparent;padding:5px 0;cursor:pointer;color:var(--muted);font-size:12px}
+.theme button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.side .foot{margin-top:auto;font-size:12px;color:var(--muted);padding:0 8px;display:flex;flex-direction:column;gap:4px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:6px;vertical-align:1px}
+.dot.cloud{background:var(--ok)} .dot.local{background:var(--warn)}
+
+main{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));min-width:0;display:flex;flex-direction:column;gap:20px;max-width:1180px;width:100%}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.head p{margin:4px 0 0;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--fg);border-color:var(--line)}
+.btn.danger{color:var(--bad)}
+.btn.danger:hover{border-color:var(--bad)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.panel > h3{margin-bottom:10px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{display:flex;flex-direction:column;gap:2px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.stat b{font-family:var(--f-mono);font-size:26px;font-weight:500;line-height:1.2}
+.stat span{color:var(--muted);font-size:12px;letter-spacing:.06em}
+.stat em{font-style:normal;font-size:12px;color:var(--muted)}
+
+.tasks{display:flex;flex-direction:column}
+.task{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.task:first-child{border-top:0}
+.task .what{flex:1;min-width:0}
+.task .what small{display:block;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:99px;font-size:12px;background:var(--panel-2);color:var(--muted);white-space:nowrap}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.gold{background:var(--gold-soft);color:var(--gold)}
+.tag{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:5px;font-size:12px;color:var(--muted);margin:2px 4px 2px 0;white-space:nowrap}
+.sex{font-weight:700}
+.sex.m{color:var(--male)} .sex.f{color:var(--female)} .sex.u{color:var(--unk)}
+.sample{font-size:11px;color:var(--gold);border:1px dashed var(--gold);border-radius:4px;padding:0 5px;margin-left:6px;white-space:nowrap}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 12px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.search{flex:1;min-width:160px;max-width:320px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;min-width:0}
+.card:hover{border-color:var(--accent)}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card .name{font-family:var(--f-display);font-size:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border-top:1px solid var(--line);padding-top:8px}
+.card .meta div{display:flex;flex-direction:column}
+.card .meta small{color:var(--muted);font-size:11px}
+.card .meta b{font-family:var(--f-mono);font-weight:500;font-size:14px}
+.card.gone{opacity:.6}
+
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;letter-spacing:.04em;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:28px 20px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;background:var(--panel)}
+.empty p{margin:0;color:var(--muted);max-width:60ch}
+.note{font-size:12px;color:var(--muted)}
+.banner{padding:10px 14px;border-radius:var(--r);background:var(--warn-soft);color:var(--warn);font-size:13px}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* detail */
+.dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.dl dt{color:var(--muted)} .dl dd{margin:0;min-width:0}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.timeline{display:flex;flex-direction:column}
+.tl{display:grid;grid-template-columns:86px 64px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.tl:first-child{border-top:0}
+.tl .d{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+
+/* chart */
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:3px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:3px 10px;cursor:pointer;font-size:13px}
+.chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+/* pedigree */
+.ped-wrap{overflow-x:auto;padding-bottom:6px}
+.ped{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));grid-template-rows:repeat(8,minmax(48px,auto));gap:6px 18px;min-width:680px}
+.pn{border:1px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--panel);align-self:center;position:relative;min-width:0}
+.pn.link{cursor:pointer}
+.pn.link:hover{border-color:var(--accent)}
+.pn b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pn small{display:block;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pn.m{border-left:3px solid var(--male)} .pn.f{border-left:3px solid var(--female)}
+.pn.self{border:2px solid var(--accent);background:var(--accent-soft)}
+.pn.none{border-style:dashed;background:transparent;color:var(--muted)}
+.pn.dup{box-shadow:0 0 0 2px var(--gold)}
+.gen-h{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:18px;min-width:680px;color:var(--muted);font-size:12px;letter-spacing:.06em;margin-bottom:6px}
+
+/* breeding */
+.pair{display:flex;flex-direction:column;gap:10px}
+.pair-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.pair-who{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:15px}
+.eggbar{display:inline-flex;vertical-align:-2px;gap:3px;align-items:center}
+.egg{width:11px;height:14px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;border:1.5px solid var(--gold);background:transparent}
+.egg.ok{background:var(--gold)} .egg.bad{border-color:var(--bad);opacity:.6}
+.ratio{display:inline-flex;gap:3px;vertical-align:-2px}
+.rb{display:inline-block;width:12px;height:12px;border-radius:3px}
+.rb.in{background:var(--gold)} .rb.fr{background:var(--fruit)}
+.rh-f{color:var(--ok);font-weight:600} .rh-r{color:var(--bad);font-weight:600}
+.plan-row{display:grid;grid-template-columns:72px auto auto minmax(0,1fr);gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.plan-row:first-of-type{border-top:0}
+.plan-row.cur{background:var(--accent-soft);margin:0 -8px;padding:8px;border-radius:8px;border-top-color:transparent}
+.prog{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;min-width:80px}
+.prog i{display:block;height:100%;background:var(--gold)}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(10,14,8,.5);display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow-y:auto;z-index:50}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:620px;padding:20px;display:flex;flex-direction:column;gap:14px;margin-top:4vh}
+.modal-h{display:flex;justify-content:space-between;align-items:center}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.form .full{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld > span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.fld input,.fld select,.fld textarea{padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--bg);width:100%;min-width:0}
+.fld textarea{min-height:64px;resize:vertical}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 10px;cursor:pointer;font-size:13px}
+.checks label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.checks input{margin:0}
+.modal-f{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:60;max-width:calc(100% - 32px)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));border-right:0;border-bottom:1px solid var(--line);z-index:20;gap:10px}
+  .brand small,.side .foot{display:none}
+  .side{flex-wrap:wrap;row-gap:6px}
+  .brand{flex:1;min-width:0;padding:0}
+  .theme{margin:0;flex:none;order:2}
+  .theme button{padding:4px 8px}
+  .nav{order:3;flex-basis:100%;margin:0 -4px}
+  .brand h1{font-size:18px;white-space:nowrap}
+  .nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .nav a{white-space:nowrap;padding:6px 10px}
+  .nav a svg{display:none}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3,.g2{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){
+  .form{grid-template-columns:minmax(0,1fr)}
+  .tl{grid-template-columns:78px minmax(0,1fr) auto}
+  .tl .k{display:none}
+  h1{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><h1>睫角守宫饲养台</h1><small>CRESTED GECKO LOG</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="theme" id="theme" role="group" aria-label="主题"></div>
+    <div class="foot" id="foot"></div>
+  </aside>
+  <main id="main">
+    <div class="empty"><h2>正在读取守宫档案…</h2><p>数据从你的云端存储加载，通常一两秒。</p></div>
+  </main>
+</div>
+<div id="modal-root"></div>
+
+<script>
+(() => {
+const COLS = ['geckos','logs','pairings','clutches','todos'];
+const S = {geckos:[],logs:[],pairings:[],clutches:[],todos:[]};
+let mode = 'loading', db = null, dl = null, loadErr = '';
+const ui = { view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
+
+const MORPHS = ['Harlequin 斑纹','Extreme Harlequin 极斑','Pinstripe 直线','Flame 火焰','Dalmatian 斑点','Super Dalmatian 超斑点','Tiger 虎纹','Brindle 虎斑','Bicolor 双色','Tricolor 三色','Patternless 无纹','Lilly White 莉莉白','Axanthic 无黄','Cappuccino 卡布奇诺','Phantom 幻影','Quad stripe 四线','Orange stripe 橙纹','Cream 奶油','Red base 红底','Yellow base 黄底','Black base 黑底'];
+const MORPH_ALIAS = {'Pinstripe 侧线':'Pinstripe 直线','Red 红':'Red base 红底','Yellow 黄':'Yellow base 黄底','Dark base 暗底':'Black base 黑底','Orange 橙':'Orange stripe 橙纹'};
+const normG = g => (g && Array.isArray(g.morphs)) ? {...g, morphs:[...new Set(g.morphs.map(m => MORPH_ALIAS[m]||m))]} : g;
+const mzh = m => { const i = String(m).lastIndexOf(' '); return i > 0 ? m.slice(i+1) : m; };
+const LOGT = {
+  feed:{t:'喂食', icon:'🍽'}, mist:{t:'喷水'}, weight:{t:'称重'}, shed:{t:'蜕皮'}, clean:{t:'清洁'}, health:{t:'健康'}, note:{t:'备注'}
+};
+const FOODS = ['果泥 · 不朽巷','果泥 · 石像鬼','蟋蟀'];
+const INSECTS = ['蟋蟀','杜比亚','黄粉虫'];
+// 喂食方案（按体重）：每 5 顿里虫子与果泥的比例 + 喂/休节奏
+const PLAN = [
+  {key:'t1', label:'1–10g',  min:0,  max:10,  insect:4, rhythm:'喂喂休', note:'幼体，以虫子为主'},
+  {key:'t2', label:'10–20g', min:10, max:20,  insect:3, rhythm:'喂休',   note:'亚成长期'},
+  {key:'t3', label:'20–35g', min:20, max:35,  insect:2, rhythm:'喂休',   note:'接近成体，果泥为主'},
+  {key:'t4', label:'35g+',   min:35, max:1e9, insect:1, rhythm:'喂休休', note:'成体'}
+];
+const tierOf = w => w == null ? null : PLAN.find(p => w >= p.min && w < p.max) || PLAN[0];
+const isInsect = l => INSECTS.includes(l.food);
+function feedStreak(gid){ // 最近一段连续喂食的天数
+  const ds = [...new Set(logsOf(gid,'feed').map(l => l.date))].sort().reverse();
+  if(!ds.length) return 0; let n = 1;
+  for(let i=1;i<ds.length;i++){ if(addDays(ds[i], 1) === ds[i-1]) n++; else break; }
+  return n;
+}
+function feedPlan(g){
+  const lw = lastW(g.id), manual = g.planKey ? PLAN.find(p => p.key === g.planKey) : null, tier = manual || tierOf(lw?.value);
+  const feeds = logsOf(g.id,'feed');
+  const lf = feeds[0]; const n = lf ? daysSince(lf.date) : null;
+  let due, need;
+  if(!tier){ need = SET.feedDays; due = n == null || n >= need; }
+  else if(tier.rhythm === '喂喂休'){ need = 2; due = n == null || n >= 2 || (n === 1 && feedStreak(g.id) < 2); if(n === 1 && feedStreak(g.id) < 2) need = 1; }
+  else if(tier.rhythm === '喂休'){ need = 2; due = n == null || n >= 2; }
+  else { need = 3; due = n == null || n >= 3; }
+  if(n === 0) due = false;
+  const newArrival = g.acquired === today() && !lf; if(newArrival) due = false;
+  const overdue = due && n != null && n >= need + 2;
+  // 食物建议：最近 4 顿 + 今天这一顿 = 5 顿，凑够该体重段的虫子数
+  const last4 = feeds.slice(0,4); const ins = last4.filter(isInsect).length;
+  const suggest = tier ? (tier.insect - ins >= 1 ? 'insect' : 'fruit') : null;
+  const last5 = feeds.slice(0,5);
+  return {tier, manual:!!manual, newArrival, lw, lf, n, due, overdue, suggest, actualIns: last5.filter(isInsect).length, actualN: last5.length};
+}
+const suggestTxt = s => s === 'insect' ? '虫子' : s === 'fruit' ? '果泥' : '';
+function ratioBar(insect, total=5){ let h=''; for(let i=0;i<total;i++) h += `<i class="rb ${i<insect?'in':'fr'}" title="${i<insect?'虫子':'果泥'}"></i>`; return `<span class="ratio">${h}</span>`; }
+function rhythmTxt(r){ return r.split('').map(c => c==='喂' ? '<b class="rh-f">喂</b>' : '<b class="rh-r">休</b>').join(''); }
+const CLUTCH_ST = {incubating:'孵化中', hatched:'已出壳', infertile:'未受精', failed:'失败'};
+const GSTATUS = {active:'在养', sold:'已出售', dead:'已离世', loaned:'外借'};
+
+// ---------- settings (per viewer) ----------
+const SET = Object.assign({feedDays:3, weighDays:7, minFemale:35}, (()=>{try{return JSON.parse(localStorage.getItem('cg-set')||'{}')}catch(e){return {}}})());
+function saveSet(){ try{localStorage.setItem('cg-set',JSON.stringify(SET))}catch(e){} }
+if(!SET.weighWeekly){ SET.weighDays = 7; SET.weighWeekly = true; saveSet(); }
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => String(n).padStart(2,'0');
+const fmtD = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => fmtD(new Date());
+const parseD = s => { if(!s) return null; const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const daysSince = s => { const d = parseD(s); if(!d) return null; const t = parseD(today()); return Math.round((t - d)/864e5); };
+const addDays = (s, n) => { const d = parseD(s); d.setDate(d.getDate()+n); return fmtD(d); };
+const ago = n => n == null ? '—' : n === 0 ? '今天' : n === 1 ? '昨天' : n < 0 ? `${-n}天后` : `${n}天前`;
+function age(s){ const n = daysSince(s); if(n==null) return '—'; if(n < 60) return `${n}天`; const m = Math.floor(n/30.44); return m < 24 ? `${m}个月` : `${(m/12).toFixed(1)}岁`; }
+const byId = id => S.geckos.find(g => g.id === id);
+const gname = id => { const g = byId(id); return g ? g.name : '（已删除）'; };
+const sexSym = s => s === 'M' ? '<span class="sex m" title="公">♂</span>' : s === 'F' ? '<span class="sex f" title="母">♀</span>' : '<span class="sex u" title="未定">?</span>';
+const sexTxt = s => s === 'M' ? '公' : s === 'F' ? '母' : '未定';
+const sampleMark = o => o && o.sample ? '<span class="sample">示例</span>' : '';
+const active = () => S.geckos.filter(g => (g.status||'active') === 'active');
+const logsOf = (gid, type) => S.logs.filter(l => l.geckoId === gid && (!type || l.type === type)).sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0));
+const lastLog = (gid, type) => logsOf(gid, type)[0];
+const weights = gid => logsOf(gid,'weight').filter(l => typeof l.value === 'number').slice().reverse();
+const lastW = gid => { const w = weights(gid); return w.length ? w[w.length-1] : null; };
+function wDelta(gid, days){ const w = weights(gid); if(w.length < 2) return null; const last = w[w.length-1]; const cutoff = addDays(last.date, -days); let base = null; for(const x of w){ if(x.date <= cutoff) base = x; } if(!base) base = w[0]; if(base === last) return null; return {d: +(last.value - base.value).toFixed(1), from: base.date}; }
+function toast(msg){ const t = document.createElement('div'); t.className='toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2200); }
+const morphWarn = (a,b) => {
+  const has = (g,k) => (g?.morphs||[]).some(m => m.startsWith(k));
+  const w = [];
+  if(has(a,'Lilly White') && has(b,'Lilly White')) w.push('双莉莉白配对：约 25% 的后代为超级莉莉白（致死）。');
+  if(has(a,'Cappuccino') && has(b,'Cappuccino')) w.push('双卡布奇诺配对：会出现超级卡布奇诺（Frappuccino），常伴随健康问题。');
+  return w;
+};
+
+// ---------- store ----------
+function loadLocal(){ try{ const d = JSON.parse(localStorage.getItem('cg-data')||'{}'); COLS.forEach(c => S[c] = d[c] || []); S.geckos = S.geckos.map(normG); }catch(e){} }
+function saveLocal(){ try{ localStorage.setItem('cg-data', JSON.stringify(S)); }catch(e){} }
+function goLocal(why){ if(mode === 'cloud') return; mode = 'local'; loadErr = why || ''; loadLocal(); render(); }
+
+async function put(col, obj){
+  const id = obj.id || uid();
+  const data = {...obj}; delete data.id;
+  data.updatedAt = Date.now(); if(!data.createdAt) data.createdAt = Date.now();
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+  if(mode === 'cloud'){
+    try{ await db.collection(col).doc(id).set(data); }
+    catch(e){ toast('保存失败：' + (e?.code === 'quota_exceeded' ? '存储已满' : e?.code === 'not_granted' ? '你没有写入权限' : (e?.message||'请稍后再试'))); throw e; }
+  } else {
+    const arr = S[col]; const i = arr.findIndex(x => x.id === id);
+    const row = {id, ...data}; if(i >= 0) arr[i] = row; else arr.push(row);
+    if(mode === 'server'){
+      render();
+      try{ await api('PUT', `/api/doc/${col}/${encodeURIComponent(id)}`, data); }
+      catch(e){ toast('保存失败：' + (e.message||'请稍后再试')); serverRefresh(); throw e; }
+    } else { saveLocal(); render(); }
+  }
+  return id;
+}
+async function del(col, id){
+  if(mode === 'cloud'){ try{ await db.collection(col).doc(id).delete(); }catch(e){ toast('删除失败：' + (e?.message||'')); throw e; } }
+  else {
+    S[col] = S[col].filter(x => x.id !== id); render();
+    if(mode === 'server'){ try{ await api('DELETE', `/api/doc/${col}/${encodeURIComponent(id)}`); }catch(e){ toast('删除失败：' + (e.message||'')); serverRefresh(); throw e; } }
+    else saveLocal();
+  }
+}
+
+// ---------- Cloudflare 后端（不在 Claude 里打开时使用） ----------
+let TOKEN = (()=>{ try{ return localStorage.getItem('cg-token') || ''; }catch(e){ return ''; } })();
+let loginMsg = '';
+async function api(method, path, body){
+  const r = await fetch(path, {method, headers:{'authorization':'Bearer '+TOKEN, ...(body?{'content-type':'application/json'}:{})}, body: body ? JSON.stringify(body) : undefined});
+  const ct = r.headers.get('content-type') || '';
+  const j = ct.includes('json') ? await r.json().catch(()=>null) : null;
+  if(!r.ok || !j){ const e = new Error(j?.message || `服务器返回 ${r.status}`); e.status = r.status; e.code = j?.error; e.isApi = !!j; throw e; }
+  return j;
+}
+async function serverRefresh(){
+  try{ const d = await api('GET','/api/data'); COLS.forEach(c => S[c] = d[c] || []); S.geckos = S.geckos.map(normG); mode = 'server'; render(); return true; }
+  catch(e){
+    if(e.isApi && (e.status === 401 || e.status === 503)){ mode = 'login'; loginMsg = e.status === 503 ? '服务器还没设置访问密码（APP_PASSWORD），请先在 Cloudflare 后台设置。' : TOKEN ? '密码不对，请重新输入。' : ''; render(); return true; }
+    if(mode === 'server'){ toast('同步失败：' + e.message); return true; }
+    return false;
+  }
+}
+async function tryServer(){
+  if(!/^https?:$/.test(location.protocol)) return false;
+  const ok = await serverRefresh();
+  if(ok && !tryServer.wired){
+    tryServer.wired = true;
+    setInterval(() => { if(mode === 'server' && document.visibilityState === 'visible' && !$('#modal-root').innerHTML) serverRefresh(); }, 60000);
+    document.addEventListener('visibilitychange', () => { if(mode === 'server' && document.visibilityState === 'visible') serverRefresh(); });
+  }
+  return ok;
+}
+function vLogin(){
+  return `<div class="empty" style="max-width:420px"><h2>输入访问密码</h2><p>这个工作台的数据只有知道密码的人能看和改。</p>
+    <form id="login" class="form" style="grid-template-columns:minmax(0,1fr);width:100%"><label class="fld"><span>密码</span><input type="password" id="pw" autocomplete="current-password" required></label>
+    ${loginMsg?`<p class="note" style="color:var(--bad);margin:0">${esc(loginMsg)}</p>`:''}<div class="actions"><button class="btn pri" type="submit">进入工作台</button></div></form></div>`;
+}
+
+async function initStore(){
+  const timer = setTimeout(() => { if(mode === 'loading') goLocal('云端存储 10 秒内没有响应'); }, 10000);
+  try{ db = window.claude?.use ? await window.claude.use('db') : null; }catch(e){ db = null; }
+  if(!db){ clearTimeout(timer); if(!window.claude?.use && await tryServer()) return; goLocal(window.claude?.use ? '没有拿到云端存储（可能未登录）' : '当前不在 Claude 查看器中'); return; }
+  const loaded = new Set();
+  COLS.forEach(c => {
+    db.collection(c).onSnapshot(snap => {
+      S[c] = snap.docs.map(d => ({id:d.id, ...d.data()})); if(c === 'geckos') S.geckos = S.geckos.map(normG);
+      loaded.add(c);
+      if(loaded.size === COLS.length && mode !== 'cloud'){ clearTimeout(timer); mode = 'cloud'; }
+      if(mode === 'cloud') render();
+    }, err => { clearTimeout(timer); if(mode !== 'cloud') goLocal('云端存储出错：' + (err?.message||err?.code||'')); else toast('同步中断：' + (err?.message||'')); });
+  });
+  try{ dl = window.claude?.use ? await window.claude.use('downloads') : null; }catch(e){ dl = null; }
+}
+
+// ---------- nav ----------
+const ICONS = {
+  overview:'<path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  geckos:'<path d="M12 3c3 0 5 2 5 5 0 2-1 3-1 5s2 3 2 5-2 3-6 3-6-1-6-3 2-3 2-5-1-3-1-5c0-3 2-5 5-5z"/><circle cx="10" cy="7" r=".8"/><circle cx="14" cy="7" r=".8"/>',
+  logs:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  weights:'<path d="M4 19h16"/><path d="M6 15l4-5 3 3 5-7"/>',
+  breeding:'<ellipse cx="9" cy="13" rx="4" ry="5"/><ellipse cx="16" cy="12" rx="3.5" ry="4.5"/>',
+  pedigree:'<circle cx="5" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 12h5V6h5M12 12v6h5"/>',
+  data:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/>'
+};
+const VIEWS = [['overview','总览'],['geckos','个体档案'],['logs','日常记录'],['weights','体重统计'],['breeding','繁殖'],['pedigree','谱系图'],['data','数据']];
+const THEMES = [['system','自动'],['light','浅色'],['dark','深色']];
+let THEME = (()=>{ try{ return localStorage.getItem('cg-theme') || 'system'; }catch(e){ return 'system'; } })();
+function applyTheme(){ const r = document.documentElement; if(THEME === 'system') r.removeAttribute('data-cg'); else r.setAttribute('data-cg', THEME); }
+applyTheme();
+function renderNav(){
+  $('#theme').innerHTML = THEMES.map(([k,t]) => `<button data-act="theme" data-v="${k}" class="${THEME===k?'on':''}" title="${k==='system'?'跟随系统':''}">${t}</button>`).join('');
+  $('#nav').innerHTML = VIEWS.map(([k,t]) => `<a href="#${k}" class="${ui.view===k||(k==='geckos'&&ui.view==='gecko')?'on':''}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${t}</a>`).join('');
+  $('#foot').innerHTML = mode === 'server' ? '<span><i class="dot cloud"></i>已同步到 Cloudflare</span><span>换设备打开同一网址即可</span>' : mode === 'cloud' ? '<span><i class="dot cloud"></i>已同步到云端</span><span>换设备打开同一链接即可</span>'
+    : mode === 'local' ? '<span><i class="dot local"></i>仅保存在本浏览器</span>' : '<span><i class="dot"></i>连接中…</span>';
+}
+function route(){
+  const h = (location.hash||'').slice(1);
+  if(h.startsWith('gecko-')){ ui.view = 'gecko'; ui.geckoId = h.slice(6); }
+  else ui.view = VIEWS.some(v => v[0] === h) ? h : 'overview';
+  render(); window.scrollTo(0,0);
+}
+
+// ---------- render ----------
+function render(){
+  renderNav();
+  const m = $('#main');
+  if(mode === 'loading') return;
+  if(mode === 'login'){ m.innerHTML = vLogin(); setTimeout(()=>$('#pw')?.focus(), 30); return; }
+  const fn = {overview:vOverview, geckos:vGeckos, gecko:vGecko, logs:vLogs, weights:vWeights, breeding:vBreeding, pedigree:vPedigree, data:vData}[ui.view] || vOverview;
+  const banner = mode === 'local' ? `<div class="banner">${esc(loadErr)}，现在的数据只存在这个浏览器里。请在 Claude 里登录后打开这个页面，数据才会保存到云端。</div>` : '';
+  m.innerHTML = banner + fn();
+  if(ui.view === 'weights' || ui.view === 'gecko') afterCharts();
+}
+
+function emptyState(title, text, btns){
+  return `<div class="empty"><h2>${title}</h2><p>${text}</p><div class="actions">${btns}</div></div>`;
+}
+const noGeckos = () => emptyState('还没有守宫档案', '先添加你的第一只睫角守宫：名字、性别、品系、出壳日期。之后就能记录喂食、喷水、称重和繁殖。想先看看效果，可以载入一组示例数据，随时在「数据」页一键清除。',
+  `<button class="btn pri" data-act="new-gecko">＋ 添加守宫</button><button class="btn" data-act="load-sample">载入示例数据</button>`);
+
+// ===== Overview =====
+function vOverview(){
+  const A = active();
+  if(!S.geckos.length) return head('总览', '今天需要照顾的事情') + noGeckos();
+  const t = today();
+  const m = A.filter(g=>g.sex==='M').length, f = A.filter(g=>g.sex==='F').length, u = A.length-m-f;
+  const fedToday = A.filter(g => lastLog(g.id,'feed')?.date === t).length;
+  const plans = A.map(g => ({g, fp: feedPlan(g)}));
+  const dueN = plans.filter(x => x.fp.due).length;
+  const mistToday = A.filter(g => lastLog(g.id,'mist')?.date === t).length;
+  const inc = S.clutches.filter(c => (c.status||'incubating') === 'incubating');
+  const eggsInc = inc.reduce((s,c) => s + (+c.fertile || +c.eggs || 0), 0);
+
+  const tasks = [];
+  A.forEach(g => {
+    const fp = feedPlan(g);
+    if(fp.due) tasks.push({p: fp.overdue?1:2, g, html: fp.overdue ? `<span class="pill bad">喂食逾期</span>` : `<span class="pill warn">今天该喂</span>`,
+      txt: `${fp.tier ? `${fp.tier.label} · 建议喂<b>${suggestTxt(fp.suggest)}</b> · ` : '未称重，按 '+SET.feedDays+' 天间隔 · '}${fp.lf ? `上次 ${ago(fp.n)}（${esc(fp.lf.food||'')}）` : '还没有喂食记录'}`,
+      act:`<button class="btn sm" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':fp.suggest==='fruit'?'果泥 · 不朽巷':''}">记喂食</button>`});
+    const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null;
+    if(wn == null || wn >= SET.weighDays) tasks.push({p:3, g, html:`<span class="pill">该称重</span>`, txt: lw ? `上次 ${lw.value}g，${ago(wn)}` : '还没有体重记录', act:`<button class="btn sm" data-act="quick" data-type="weight" data-id="${g.id}">记体重</button>`});
+  });
+  S.pairings.filter(p => (p.status||'active')==='active').forEach(p => {
+    const fw = lastW(p.femaleId);
+    if(fw && fw.value < SET.minFemale) tasks.push({p:0, g:byId(p.femaleId), html:`<span class="pill bad">母体偏轻</span>`, txt:`正在配对，但最近体重 ${fw.value}g，低于 ${SET.minFemale}g`, act:`<a class="btn sm" href="#breeding">看繁殖</a>`});
+  });
+  tasks.sort((a,b) => a.p - b.p);
+  const todoRows = () => S.todos.filter(x => !x.done).sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(x => {
+    const n = daysSince(x.date); const pill = n == null ? '' : n > 0 ? '<span class="pill bad">逾期</span>' : n === 0 ? '<span class="pill gold">今天</span>' : `<span class="pill">${x.date.slice(5)}</span>`;
+    return `<div class="task">${pill}<div class="what">${esc(x.text)}${x.note?`<small>${esc(x.note)}</small>`:''}</div><button class="btn sm" data-act="done-todo" data-id="${x.id}">完成</button><button class="btn sm ghost" data-act="edit-todo" data-id="${x.id}">编辑</button></div>`; }).join('');
+
+  const incRows = inc.map(c => {
+    const n = daysSince(c.layDate); const lo = 60, hi = 90;
+    const st = n >= hi ? '<span class="pill bad">超过90天</span>' : n >= lo ? '<span class="pill gold">出壳窗口</span>' : `<span class="pill">还有约 ${lo-n} 天</span>`;
+    const p = S.pairings.find(x => x.id === c.pairingId);
+    return `<div class="task"><div class="what"><b>${esc(gname(p?.femaleId))}</b> 的蛋 · ${eggsDots(c)}<small>产于 ${c.layDate}，已孵 ${n} 天${c.temp?`，${esc(c.temp)}°C`:''}，预计 ${addDays(c.layDate,lo)} ~ ${addDays(c.layDate,hi)}</small></div>${st}</div>`;
+  }).join('');
+
+  return head('总览', `${t} · 在养 ${A.length} 只`, `<button class="btn" data-act="batch">批量记录</button><button class="btn pri" data-act="new-gecko">＋ 添加守宫</button>`) + `
+  <div class="grid g4">
+    <div class="stat"><span>在养个体</span><b>${A.length}</b><em><span class="sex m">♂</span> ${m} · <span class="sex f">♀</span> ${f} · <span class="sex u">?</span> ${u}</em></div>
+    <div class="stat"><span>今日已喂</span><b>${fedToday}</b><em>还有 ${dueN} 只今天该喂（按体重方案）</em></div>
+    <div class="stat"><span>今日已喷水</span><b>${mistToday}<small style="font-size:14px;color:var(--muted)"> / ${A.length}</small></b><em><button class="btn sm ghost" data-act="mist-all" style="padding:0">全部记一次喷水 →</button></em></div>
+    <div class="stat"><span>孵化中的蛋</span><b>${eggsInc}</b><em>${inc.length} 窝</em></div>
+  </div>
+  <div class="grid g2">
+    <div class="panel"><div class="head" style="margin-bottom:6px"><h3>待办</h3><button class="btn sm" data-act="new-todo">＋ 添加待办</button></div><div class="tasks">${todoRows()}${tasks.length ? tasks.slice(0,14).map(x => `<div class="task">${x.html}<div class="what"><a href="#gecko-${x.g?.id}">${esc(x.g?.name||'')}</a><small>${x.txt}</small></div>${x.act}</div>`).join('') + (tasks.length>14?`<div class="note" style="padding-top:8px">还有 ${tasks.length-14} 项…</div>`:'') : '<p class="note">今天的喂食和称重都处理好了。</p>'}</div></div>
+    <div class="panel"><h3>喂食方案 <span class="note">按最新体重自动分档</span></h3>${planTable(plans)}</div>
+    <div class="panel"><h3>孵化箱</h3><div class="tasks">${incRows || '<p class="note">现在没有在孵的蛋。产蛋后在「繁殖」页登记，这里会显示预计出壳时间（睫角守宫一般 60~90 天，视温度而定）。</p>'}</div></div>
+  </div>
+  <div class="panel"><h3>最近记录</h3>${logTable(S.logs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0)).slice(0,8), true)}</div>`;
+}
+function planTable(plans, cur){
+  return PLAN.map(p => { const gs = plans ? plans.filter(x => x.fp.tier === p) : [];
+    return `<div class="plan-row ${cur===p?'cur':''}"><b class="mono">${p.label}</b>${ratioBar(p.insect)}<span>${rhythmTxt(p.rhythm)}</span><span class="note">虫${p.insect}:果泥${5-p.insect}${plans?` · ${gs.length ? gs.map(x=>esc(x.g.name)).join('、') : '暂无个体'}`:` · ${p.note}`}</span></div>`; }).join('')
+    + `<p class="note" style="margin:8px 0 0"><span class="rb in"></span> 虫子　<span class="rb fr"></span> 果泥　「喂」喂一天，「休」停一天，循环。${plans && plans.some(x=>!x.fp.tier) ? `未称重的个体按 ${SET.feedDays} 天间隔提醒，称一次重就会自动分档。` : ''}</p>`;
+}
+function head(t, sub, actions=''){ return `<div class="head"><div><h1>${t}</h1>${sub?`<p>${sub}</p>`:''}</div><div class="actions">${actions}</div></div>`; }
+function eggsDots(c){ const e = +c.eggs||0, ok = c.fertile==null||c.fertile===''? e : +c.fertile; let s=''; for(let i=0;i<e;i++) s += `<i class="egg ${i<ok?'ok':'bad'}"></i>`; return `<span class="eggbar" title="${e} 枚，受精 ${ok}">${s}</span>`; }
+
+// ===== Geckos list =====
+function vGeckos(){
+  if(!S.geckos.length) return head('个体档案') + noGeckos();
+  const q = ui.q.trim().toLowerCase();
+  let L = S.geckos.filter(g => (ui.statusFilter==='all' || (g.status||'active')===ui.statusFilter) && (ui.sexFilter==='all' || (g.sex||'U')===ui.sexFilter));
+  if(q) L = L.filter(g => [g.name,g.code,(g.morphs||[]).join(' '),g.note,g.source].join(' ').toLowerCase().includes(q));
+  L.sort((a,b) => (a.code||a.name||'').localeCompare(b.code||b.name||'', 'zh'));
+  const seg = (k, opts) => `<div class="seg">${opts.map(([v,t]) => `<button data-act="filter" data-k="${k}" data-v="${v}" class="${ui[k]===v?'on':''}">${t}</button>`).join('')}</div>`;
+  return head('个体档案', `共 ${S.geckos.length} 只，在养 ${active().length} 只`, `<button class="btn pri" data-act="new-gecko">＋ 添加守宫</button>`) + `
+  <div class="toolbar">${seg('sexFilter',[['all','全部'],['M','♂ 公'],['F','♀ 母'],['U','未定']])}${seg('statusFilter',[['active','在养'],['all','全部状态'],['sold','已出售'],['dead','已离世']])}<input class="search" id="q" placeholder="搜索名字、编号、品系" value="${esc(ui.q)}"></div>
+  ${L.length ? `<div class="cards">${L.map(card).join('')}</div>` : '<p class="note">没有符合条件的个体。</p>'}`;
+}
+function card(g){
+  const lw = lastW(g.id), lf = lastLog(g.id,'feed');
+  const st = g.status && g.status !== 'active' ? `<span class="pill">${GSTATUS[g.status]}</span>` : '';
+  return `<button class="card ${g.status&&g.status!=='active'?'gone':''}" data-go="gecko-${g.id}">
+    <div class="top"><span class="name">${sexSym(g.sex)} ${esc(g.name)}</span><span class="mono note">${esc(g.code||'')}</span></div>
+    <div>${(g.morphs||[]).map(m => `<span class="tag">${esc(mzh(m))}</span>`).join('') || '<span class="note">未填品系</span>'}${g.tail==='dropped'?'<span class="tag">断尾</span>':''}${g.machi==='yes'?'<span class="tag">有町</span>':g.machi==='no'?'<span class="tag">无町</span>':''}${st}${sampleMark(g)}</div>
+    <div class="meta"><div><small>体重</small><b>${lw ? lw.value+'g' : '—'}</b></div><div><small>年龄</small><b>${age(g.hatchDate)}</b></div><div><small>上次喂食</small><b>${lf ? ago(daysSince(lf.date)) : '—'}</b></div></div>
+  </button>`;
+}
+
+// ===== Gecko detail =====
+function vGecko(){
+  const g = byId(ui.geckoId);
+  if(!g) return head('找不到这只守宫') + `<p class="note">它可能已经被删除。<a href="#geckos">回到个体档案</a></p>`;
+  const par = (id, txt) => id && byId(id) ? `<a href="#gecko-${id}">${esc(gname(id))}</a>` : txt ? esc(txt) + ' <span class="note">（外来）</span>' : '<span class="note">未知</span>';
+  const kids = S.geckos.filter(x => x.sireId === g.id || x.damId === g.id);
+  const lw = lastW(g.id), d30 = wDelta(g.id, 30);
+  const L = logsOf(g.id);
+  const pairs = S.pairings.filter(p => p.maleId === g.id || p.femaleId === g.id);
+  const warns = [];
+  const fw = morphWarn(byId(g.sireId), byId(g.damId)); if(fw.length) warns.push('父母配对提示：' + fw.join(' '));
+  return `<div class="note"><a href="#geckos">← 个体档案</a></div>` + head(`${sexSym(g.sex)} ${esc(g.name)}${sampleMark(g)}`, `${esc(g.code||'无编号')} · ${sexTxt(g.sex)} · ${GSTATUS[g.status||'active']}`,
+    `<a class="btn" href="#pedigree" data-act="ped" data-id="${g.id}">谱系图</a><button class="btn" data-act="edit-gecko" data-id="${g.id}">编辑档案</button>`) + `
+  <div class="panel"><div class="quick">${Object.entries(LOGT).map(([k,v]) => `<button class="btn ${k==='weight'||k==='feed'?'pri':''}" data-act="quick" data-type="${k}" data-id="${g.id}">记${v.t}</button>`).join('')}</div></div>
+  ${feedPanel(g)}
+  <div class="grid g3">
+    <div class="stat"><span>最新体重</span><b>${lw ? lw.value+' g' : '—'}</b><em>${lw ? ago(daysSince(lw.date)) : '还没称过'}</em></div>
+    <div class="stat"><span>30 天变化</span><b style="color:${d30==null?'inherit':d30.d>=0?'var(--ok)':'var(--bad)'}">${d30==null?'—':(d30.d>0?'+':'')+d30.d+' g'}</b><em>${d30?`对比 ${d30.from}`:'至少需要两次称重'}</em></div>
+    <div class="stat"><span>年龄</span><b>${age(g.hatchDate)}</b><em>${g.hatchDate ? '出壳 ' + g.hatchDate : '出壳日期未填'}</em></div>
+  </div>
+  <div class="grid g2">
+    <div class="panel"><h3>档案</h3><dl class="dl">
+      <dt>尾巴</dt><dd>${g.tail==='dropped'?'已断尾':g.tail==='intact'?'完整':'—'}</dd>
+      <dt>有町 / 无町</dt><dd>${g.machi==='yes'?'有町':g.machi==='no'?'无町':'—'}</dd>
+      <dt>品系 / 基因</dt><dd>${(g.morphs||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('') || '—'}${g.genes?`<div>${esc(g.genes)}</div>`:''}</dd>
+      <dt>父本 ♂</dt><dd>${par(g.sireId, g.sireText)}</dd>
+      <dt>母本 ♀</dt><dd>${par(g.damId, g.damText)}</dd>
+      <dt>来源</dt><dd>${esc(g.source||'—')}${g.price?` · <span class="mono">¥${esc(g.price)}</span>`:''}</dd>
+      <dt>到家日期</dt><dd class="mono">${esc(g.acquired||'—')}</dd>
+      <dt>后代</dt><dd>${kids.length ? kids.map(k => `<a href="#gecko-${k.id}">${esc(k.name)}</a>`).join('、') : '—'}</dd>
+      <dt>配对</dt><dd>${pairs.length ? pairs.map(p => `${esc(gname(p.maleId))} × ${esc(gname(p.femaleId))}`).join('；') : '—'}</dd>
+      <dt>备注</dt><dd>${esc(g.note||'—')}</dd>
+    </dl>${warns.map(w=>`<div class="banner" style="margin-top:10px">${esc(w)}</div>`).join('')}</div>
+    <div class="panel chart"><h3>体重曲线</h3><div data-chart="${g.id}"></div></div>
+  </div>
+  <div class="panel"><h3>全部记录 <span class="note">${L.length} 条</span></h3>${L.length ? `<div class="timeline">${L.slice(0,200).map(tlRow).join('')}</div>` : '<p class="note">还没有记录。用上面的按钮记第一条。</p>'}</div>`;
+}
+function feedPanel(g){
+  if((g.status||'active') !== 'active') return '';
+  const fp = feedPlan(g);
+  if(!fp.tier) return `<div class="panel"><h3>喂食方案</h3><p class="note">还没有体重记录，先称一次重，就会按体重段给出虫子和果泥的比例和喂休节奏。现在按 ${SET.feedDays} 天间隔提醒。</p></div>`;
+  const st = fp.newArrival ? '<span class="pill">刚到家，今天不喂</span>' : fp.n === 0 ? '<span class="pill ok">今天已喂</span>' : fp.overdue ? '<span class="pill bad">喂食逾期</span>' : fp.due ? '<span class="pill warn">今天该喂</span>' : '<span class="pill">今天休息</span>';
+  return `<div class="panel"><div class="head" style="margin-bottom:8px"><h3>喂食方案 · ${fp.tier.label}${fp.manual?' <span class="note">手动指定</span>':''}</h3><div class="actions">${st}${fp.due?` <button class="btn sm pri" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':'果泥 · 不朽巷'}">记喂食（${suggestTxt(fp.suggest)}）</button>`:''}</div></div>
+    <dl class="dl"><dt>方案比例</dt><dd>${ratioBar(fp.tier.insect)} <span class="note">每 5 顿：虫子 ${fp.tier.insect}，果泥 ${5-fp.tier.insect}</span></dd>
+    <dt>节奏</dt><dd>${rhythmTxt(fp.tier.rhythm)} <span class="note">循环；上次喂食 ${fp.lf?ago(fp.n):'—'}</span></dd>
+    <dt>下一顿建议</dt><dd><b>${suggestTxt(fp.suggest)}</b> <span class="note">依据最近 ${Math.min(4, fp.actualN)} 顿里有 ${logsOf(g.id,'feed').slice(0,4).filter(isInsect).length} 顿虫子</span></dd>
+    <dt>最近 5 顿实际</dt><dd>${fp.actualN ? `${ratioBar(fp.actualIns, fp.actualN)} <span class="note">虫子 ${fp.actualIns}，果泥 ${fp.actualN-fp.actualIns}</span>` : '—'}</dd></dl></div>`;
+}
+function logDesc(l){
+  if(l.type === 'feed') return `${esc(l.food||'')}${l.amount?` · ${esc(l.amount)}`:''}${l.ate===false?' · <span class="pill warn">拒食</span>':''}`;
+  if(l.type === 'weight') return `<b class="mono">${l.value} g</b>`;
+  return '';
+}
+function tlRow(l){
+  return `<div class="tl"><span class="d">${l.date}</span><span class="k"><span class="pill">${LOGT[l.type]?.t||l.type}</span></span><span>${logDesc(l)} ${l.note?`<span class="note">${esc(l.note)}</span>`:''}${sampleMark(l)}</span><span><button class="btn sm ghost" data-act="edit-log" data-id="${l.id}">编辑</button></span></div>`;
+}
+
+// ===== Logs =====
+function logTable(L, showG){
+  if(!L.length) return '<p class="note">还没有记录。</p>';
+  return `<div class="tbl-wrap"><table><thead><tr><th>日期</th>${showG?'<th>个体</th>':''}<th>类型</th><th>内容</th><th>备注</th><th></th></tr></thead><tbody>${L.map(l => `<tr><td class="mono">${l.date}</td>${showG?`<td><a href="#gecko-${l.geckoId}">${esc(gname(l.geckoId))}</a></td>`:''}<td><span class="pill">${LOGT[l.type]?.t||l.type}</span></td><td>${logDesc(l)}</td><td class="note">${esc(l.note||'')}${sampleMark(l)}</td><td class="r"><button class="btn sm ghost" data-act="edit-log" data-id="${l.id}">编辑</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function vLogs(){
+  if(!S.geckos.length) return head('日常记录') + noGeckos();
+  let L = S.logs.filter(l => (ui.logType==='all'||l.type===ui.logType) && (ui.logGecko==='all'||l.geckoId===ui.logGecko));
+  L.sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0));
+  const total = L.length; L = L.slice(0, 300);
+  const opts = S.geckos.map(g => `<option value="${g.id}" ${ui.logGecko===g.id?'selected':''}>${esc(g.name)}</option>`).join('');
+  return head('日常记录', '喂食、喷水、称重、蜕皮、清洁和健康情况', `<button class="btn pri" data-act="batch">批量记录</button>`) + `
+  <div class="toolbar"><div class="seg">${[['all','全部'],...Object.entries(LOGT).map(([k,v])=>[k,v.t])].map(([k,t]) => `<button data-act="filter" data-k="logType" data-v="${k}" class="${ui.logType===k?'on':''}">${t}</button>`).join('')}</div>
+  <select class="search" id="logGecko" style="max-width:200px"><option value="all">全部个体</option>${opts}</select></div>
+  <div class="panel">${logTable(L, true)}${total>300?`<p class="note">只显示最近 300 条，共 ${total} 条。</p>`:''}</div>`;
+}
+
+// ===== Weights =====
+function vWeights(){
+  if(!S.geckos.length) return head('体重统计') + noGeckos();
+  const A = active();
+  if(!ui.wSel) ui.wSel = A.filter(g => weights(g.id).length).slice(0,4).map(g => g.id);
+  const rows = A.map(g => { const w = weights(g.id), lw = w[w.length-1]; return {g, w, lw, d30: wDelta(g.id,30), d90: wDelta(g.id,90)}; })
+    .sort((a,b) => (b.lw?.value||0) - (a.lw?.value||0));
+  const withW = rows.filter(r => r.lw);
+  const avg = withW.length ? (withW.reduce((s,r)=>s+r.lw.value,0)/withW.length).toFixed(1) : '—';
+  const due = rows.filter(r => !r.lw || daysSince(r.lw.date) >= SET.weighDays).length;
+  const adultF = rows.filter(r => r.g.sex==='F' && r.lw && r.lw.value >= SET.minFemale).length;
+  return head('体重统计', `建议每 ${SET.weighDays} 天称一次，用克秤，在喂食前称`, `<button class="btn pri" data-act="batch" data-type="weight">批量称重</button>`) + `
+  <div class="grid g4">
+    <div class="stat"><span>已称重个体</span><b>${withW.length}<small style="font-size:14px;color:var(--muted)"> / ${A.length}</small></b></div>
+    <div class="stat"><span>平均体重</span><b>${avg}${avg!=='—'?'<small style="font-size:14px"> g</small>':''}</b></div>
+    <div class="stat"><span>需要称重</span><b>${due}</b><em>超过 ${SET.weighDays} 天未称</em></div>
+    <div class="stat"><span>达繁殖体重的母</span><b>${adultF}</b><em>≥ ${SET.minFemale} g</em></div>
+  </div>
+  <div class="panel chart"><div class="head" style="margin-bottom:10px"><h3>体重曲线对比</h3><div class="seg">${[['90','90天'],['365','1年'],['all','全部']].map(([k,t])=>`<button data-act="wrange" data-v="${k}" class="${ui.wRange===k?'on':''}">${t}</button>`).join('')}</div></div>
+    <div class="chips" style="margin-bottom:10px">${A.map(g => `<button class="chip ${ui.wSel.includes(g.id)?'on':''}" data-act="wsel" data-id="${g.id}">${esc(g.name)}</button>`).join('')}</div>
+    <div data-chart="multi"></div></div>
+  <div class="panel"><h3>体重一览</h3><div class="tbl-wrap"><table><thead><tr><th>个体</th><th>性别</th><th>年龄</th><th class="r">最新体重</th><th>称重日期</th><th class="r">30天变化</th><th class="r">90天变化</th><th>趋势</th></tr></thead><tbody>
+  ${rows.map(r => `<tr><td><a href="#gecko-${r.g.id}">${esc(r.g.name)}</a></td><td>${sexSym(r.g.sex)}</td><td>${age(r.g.hatchDate)}</td><td class="r mono">${r.lw?r.lw.value+' g':'—'}</td><td class="mono">${r.lw?r.lw.date:'—'} ${r.lw && daysSince(r.lw.date)>=SET.weighDays?'<span class="pill warn">该称了</span>':''}</td><td class="r mono" style="color:${r.d30==null?'':r.d30.d>=0?'var(--ok)':'var(--bad)'}">${r.d30==null?'—':(r.d30.d>0?'+':'')+r.d30.d}</td><td class="r mono" style="color:${r.d90==null?'':r.d90.d>=0?'var(--ok)':'var(--bad)'}">${r.d90==null?'—':(r.d90.d>0?'+':'')+r.d90.d}</td><td>${spark(r.w)}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function spark(w){
+  if(w.length < 2) return '<span class="note">—</span>';
+  const W=90,H=24, v=w.map(x=>x.value), mn=Math.min(...v), mx=Math.max(...v), r=mx-mn||1;
+  const pts = v.map((y,i)=>[ (i/(v.length-1))*(W-4)+2, H-3-((y-mn)/r)*(H-6) ]);
+  const last = pts[pts.length-1];
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="var(--accent)"/></svg>`;
+}
+function lineChart(series, opts={}){
+  series = series.filter(s => s.pts.length);
+  if(!series.length) return `<p class="note">${opts.empty||'还没有体重数据。'}</p>`;
+  const W=720,H=opts.h||260, L=44,R=16,T=14,B=30;
+  const all = series.flatMap(s=>s.pts);
+  let x0 = Math.min(...all.map(p=>p.t)), x1 = Math.max(...all.map(p=>p.t));
+  if(x0===x1){ x0 -= 864e5*7; x1 += 864e5*7; }
+  let y0 = Math.min(...all.map(p=>p.v)), y1 = Math.max(...all.map(p=>p.v));
+  const span = y1-y0 || Math.max(1,y1*0.2); y0 = Math.max(0, y0 - span*0.15); y1 = y1 + span*0.15;
+  const step = niceStep((y1-y0)/4); y0 = Math.floor(y0/step)*step; y1 = Math.ceil(y1/step)*step;
+  const sx = t => L + (t-x0)/(x1-x0)*(W-L-R), sy = v => T + (1-(v-y0)/(y1-y0))*(H-T-B);
+  let g = '<g class="grid">';
+  for(let v=y0; v<=y1+1e-9; v+=step){ g += `<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L-6}" y="${sy(v)+4}" text-anchor="end">${+v.toFixed(1)}</text>`; }
+  g += '</g>';
+  const nT = 5; let xt = '';
+  for(let i=0;i<nT;i++){ const t = x0 + (x1-x0)*i/(nT-1); const d = new Date(t); xt += `<text x="${sx(t)}" y="${H-8}" text-anchor="${i===0?'start':i===nT-1?'end':'middle'}">${d.getFullYear()%100}/${pad(d.getMonth()+1)}/${pad(d.getDate())}</text>`; }
+  const labY = series.map((s,i) => ({i, y: sy(s.pts[s.pts.length-1].v) - 9})).sort((a,b)=>a.y-b.y);
+  for(let k=1;k<labY.length;k++) if(labY[k].y - labY[k-1].y < 13) labY[k].y = labY[k-1].y + 13;
+  const labAt = {}; labY.forEach(o => labAt[o.i] = o.y);
+  const lines = series.map((s, si) => {
+    const pts = s.pts.map(p => `${sx(p.t).toFixed(1)},${sy(p.v).toFixed(1)}`).join(' ');
+    const lp = s.pts[s.pts.length-1];
+    const area = series.length===1 ? `<polygon points="${sx(s.pts[0].t)},${sy(y0)} ${pts} ${sx(lp.t)},${sy(y0)}" fill="${s.c}" fill-opacity=".1"/>` : '';
+    const dots = s.pts.map(p => `<circle cx="${sx(p.t)}" cy="${sy(p.v)}" r="2.5" fill="${s.c}"><title>${s.name} ${fmtD(new Date(p.t))}：${p.v} g</title></circle>`).join('');
+    return `${area}<polyline points="${pts}" fill="none" stroke="${s.c}" stroke-width="2" stroke-linejoin="round"/>${dots}<circle cx="${sx(lp.t)}" cy="${sy(lp.v)}" r="4.5" fill="${s.c}" stroke="var(--panel)" stroke-width="2"/><text x="${Math.min(sx(lp.t), W-R-4)}" y="${labAt[si]}" text-anchor="end" style="fill:${s.c};font-weight:500">${lp.v}g</text>`;
+  }).join('');
+  const leg = series.length > 1 ? `<div class="legend">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.name)}</span>`).join('')}</div>` : '';
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="体重曲线">${g}${xt}<text x="${L}" y="${T-2}" style="font-size:10px">克</text>${lines}</svg>${leg}`;
+}
+function niceStep(x){ const p = Math.pow(10, Math.floor(Math.log10(x||1))); const n = x/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
+const COLORS = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)'];
+function afterCharts(){
+  document.querySelectorAll('[data-chart]').forEach(el => {
+    const k = el.dataset.chart;
+    const toPts = (id, minT) => weights(id).map(w => ({t: parseD(w.date).getTime(), v: w.value})).filter(p => !minT || p.t >= minT);
+    if(k === 'multi'){
+      const minT = ui.wRange==='all' ? 0 : Date.now() - (+ui.wRange)*864e5;
+      el.innerHTML = lineChart(ui.wSel.map((id,i) => ({name: gname(id), c: COLORS[i%COLORS.length], pts: toPts(id,minT)})), {empty:'选上面的个体来对比体重曲线。', h:280});
+    } else {
+      el.innerHTML = lineChart([{name: gname(k), c:'var(--accent)', pts: toPts(k)}], {empty:'称重两次以上就会画出曲线。', h:220});
+    }
+  });
+}
+
+// ===== Breeding =====
+function vBreeding(){
+  if(!S.geckos.length) return head('繁殖') + noGeckos();
+  const P = S.pairings.slice().sort((a,b) => ((b.status||'active')==='active') - ((a.status||'active')==='active') || (b.startDate||'').localeCompare(a.startDate||''));
+  const allC = S.clutches;
+  const hatched = allC.filter(c=>c.status==='hatched').length;
+  const eggs = allC.reduce((s,c)=>s+(+c.eggs||0),0);
+  return head('繁殖', '配对、产蛋、孵化与出壳登记', `<button class="btn pri" data-act="new-pair">＋ 新配对</button>`) + `
+  <div class="grid g4">
+    <div class="stat"><span>进行中的配对</span><b>${S.pairings.filter(p=>(p.status||'active')==='active').length}</b></div>
+    <div class="stat"><span>总窝数</span><b>${allC.length}</b></div>
+    <div class="stat"><span>总蛋数</span><b>${eggs}</b></div>
+    <div class="stat"><span>已出壳窝数</span><b>${hatched}</b></div>
+  </div>
+  ${P.length ? P.map(pairBlock).join('') : `<div class="empty"><h2>还没有配对记录</h2><p>选一只公和一只母建立配对，之后每次产蛋登记一窝。母体建议 ${SET.minFemale}g 以上再上配。</p><div class="actions"><button class="btn pri" data-act="new-pair">＋ 新配对</button></div></div>`}`;
+}
+function pairBlock(p){
+  const m = byId(p.maleId), f = byId(p.femaleId);
+  const C = S.clutches.filter(c => c.pairingId === p.id).sort((a,b) => (b.layDate||'').localeCompare(a.layDate||''));
+  const fw = lastW(p.femaleId);
+  const warns = morphWarn(m,f);
+  const last = C[0]; const nextLay = last && (p.status||'active')==='active' ? addDays(last.layDate, 30) : null;
+  return `<div class="panel pair">
+    <div class="pair-h"><div class="pair-who"><span class="sex m">♂</span><a href="#gecko-${p.maleId}">${esc(m?.name||'？')}</a> <span class="note">×</span> <span class="sex f">♀</span><a href="#gecko-${p.femaleId}">${esc(f?.name||'？')}</a>
+      ${(p.status||'active')==='active'?'<span class="pill ok">进行中</span>':'<span class="pill">已结束</span>'}${sampleMark(p)}</div>
+      <div class="actions"><button class="btn sm pri" data-act="new-clutch" data-id="${p.id}">登记产蛋</button><button class="btn sm" data-act="edit-pair" data-id="${p.id}">编辑</button></div></div>
+    <div class="note">开始 ${p.startDate||'—'}${p.endDate?` · 结束 ${p.endDate}`:''} · 母体最近体重 ${fw?`<span class="mono">${fw.value}g</span>${fw.value<SET.minFemale?' <span class="pill bad">偏轻</span>':''}`:'未称'}${nextLay?` · 下一窝约在 ${nextLay} 前后`:''}${p.note?` · ${esc(p.note)}`:''}</div>
+    ${warns.map(w=>`<div class="banner bad">${esc(w)}</div>`).join('')}
+    ${C.length ? `<div class="tbl-wrap"><table><thead><tr><th>产蛋日</th><th>蛋</th><th>温度</th><th>状态</th><th>孵化进度（60~90天）</th><th>出壳</th><th></th></tr></thead><tbody>${C.map(c => clutchRow(c,p)).join('')}</tbody></table></div>` : '<p class="note">还没有产蛋记录。</p>'}
+  </div>`;
+}
+function clutchRow(c, p){
+  const st = c.status||'incubating';
+  const n = daysSince(c.layDate);
+  const prog = st==='incubating' ? `<div style="display:flex;gap:8px;align-items:center"><div class="prog" style="flex:1"><i style="width:${Math.min(100, n/90*100)}%"></i></div><span class="mono note">${n}天</span></div>` : st==='hatched' && c.hatchDate ? `<span class="mono note">${daysSince(c.layDate)-daysSince(c.hatchDate)} 天出壳</span>` : '';
+  const kids = (c.hatchlingIds||[]).map(id => byId(id)).filter(Boolean);
+  return `<tr><td class="mono">${c.layDate}${sampleMark(c)}</td><td>${eggsDots(c)}</td><td class="mono">${c.temp?esc(c.temp)+'°C':'—'}</td><td><span class="pill ${st==='hatched'?'ok':st==='incubating'?'gold':'bad'}">${CLUTCH_ST[st]}</span></td><td>${prog}</td>
+    <td>${kids.map(k=>`<a href="#gecko-${k.id}">${esc(k.name)}</a>`).join('、')}${st!=='infertile'&&st!=='failed'?` <button class="btn sm" data-act="hatch" data-id="${c.id}">＋ 登记出壳</button>`:''}</td>
+    <td class="r"><button class="btn sm ghost" data-act="edit-clutch" data-id="${c.id}">编辑</button></td></tr>`;
+}
+
+// ===== Pedigree =====
+function vPedigree(){
+  if(!S.geckos.length) return head('谱系图') + noGeckos();
+  if(!ui.pedId || !byId(ui.pedId)){ const withP = S.geckos.find(g => g.sireId || g.damId); ui.pedId = (withP||S.geckos[0]).id; }
+  const g = byId(ui.pedId);
+  // build ancestor slots: gen 0..3, index heap style
+  const slots = []; // [ {gen, idx, id, text, sex} ]
+  function fill(gen, idx, id, text, sex){
+    slots.push({gen, idx, id, text, sex});
+    if(gen >= 3) return;
+    const x = id ? byId(id) : null;
+    fill(gen+1, idx*2, x?.sireId, x?.sireText, 'M');
+    fill(gen+1, idx*2+1, x?.damId, x?.damText, 'F');
+  }
+  fill(0, 0, g.id, null, g.sex);
+  // inbreeding: common ancestors between sire side and dam side
+  const anc = (id, depth, set) => { if(!id || depth > 3) return set; const x = byId(id); if(!x) return set; set.add(id); anc(x.sireId, depth+1, set); anc(x.damId, depth+1, set); return set; };
+  const sSide = anc(g.sireId, 1, new Set()), dSide = anc(g.damId, 1, new Set());
+  const common = [...sSide].filter(id => dSide.has(id));
+  const cells = slots.map(s => {
+    const span = 8 / Math.pow(2, s.gen);
+    const style = `grid-column:${s.gen+1};grid-row:${s.idx*span+1} / span ${span}`;
+    const x = s.id ? byId(s.id) : null;
+    const lbl = s.gen===0 ? '' : s.gen===1 ? (s.sex==='M'?'父':'母') : s.gen===2 ? (s.sex==='M'?'祖父':'祖母') : (s.sex==='M'?'曾祖父':'曾祖母');
+    if(x) return `<div class="pn ${s.gen===0?'self':''} ${x.sex==='M'?'m':x.sex==='F'?'f':''} ${common.includes(x.id)?'dup':''} link" style="${style}" data-ped="${x.id}"><small>${lbl}</small><b>${esc(x.name)}</b><small>${esc((x.morphs||[]).map(mzh).join(' · ')||x.code||'')}</small></div>`;
+    if(s.text) return `<div class="pn ${s.sex==='M'?'m':'f'}" style="${style}"><small>${lbl} · 外来</small><b>${esc(s.text)}</b></div>`;
+    return `<div class="pn none" style="${style}"><small>${lbl}</small>未知</div>`;
+  }).join('');
+  const kids = S.geckos.filter(x => x.sireId === g.id || x.damId === g.id);
+  const sibs = S.geckos.filter(x => x.id !== g.id && ((g.sireId && x.sireId === g.sireId) || (g.damId && x.damId === g.damId)));
+  const opts = S.geckos.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','zh')).map(x => `<option value="${x.id}" ${x.id===g.id?'selected':''}>${esc(x.name)}${x.code?' · '+esc(x.code):''}</option>`).join('');
+  const kidRow = k => `<a href="#gecko-${k.id}">${sexSym(k.sex)} ${esc(k.name)}</a> <span class="note">${k.hatchDate||''}</span>`;
+  return head('谱系图', '往上追溯三代祖先，点任意格子切换到它的谱系', `<select class="search" id="pedSel" style="max-width:240px">${opts}</select>`) + `
+  ${common.length ? `<div class="banner">近亲提示：${common.map(id=>esc(gname(id))).join('、')} 同时出现在父系和母系中（金色描边）。</div>` : ''}
+  <div class="panel"><div class="ped-wrap"><div class="gen-h"><span>本体</span><span>父母</span><span>祖父母</span><span>曾祖父母</span></div><div class="ped">${cells}</div></div></div>
+  <div class="grid g2">
+    <div class="panel"><h3>后代 <span class="note">${kids.length}</span></h3>${kids.length ? `<div class="tasks">${kids.map(k=>`<div class="task"><div class="what">${kidRow(k)}</div></div>`).join('')}</div>` : '<p class="note">没有登记的后代。</p>'}</div>
+    <div class="panel"><h3>同胞 <span class="note">${sibs.length}</span></h3>${sibs.length ? `<div class="tasks">${sibs.map(k=>`<div class="task"><div class="what">${kidRow(k)} ${k.sireId===g.sireId&&k.damId===g.damId?'<span class="pill">全同胞</span>':'<span class="pill">半同胞</span>'}</div></div>`).join('')}</div>` : '<p class="note">没有登记的同胞。</p>'}</div>
+  </div>`;
+}
+
+// ===== Data =====
+function vData(){
+  const n = COLS.reduce((s,c)=>s+S[c].length,0);
+  const samples = COLS.reduce((s,c)=>s+S[c].filter(x=>x.sample).length,0);
+  return head('数据', mode==='server' ? '数据保存在 Cloudflare 上，换设备打开同一个网址、输入密码就能看到。' : mode==='cloud' ? '数据保存在这个页面的云端存储里，换设备打开同一个链接就能看到。' : '数据目前只保存在这个浏览器里。') + `
+  <div class="grid g4">${[['geckos','个体'],['logs','记录'],['pairings','配对'],['clutches','窝']].map(([c,t]) => `<div class="stat"><span>${t}</span><b>${S[c].length}</b></div>`).join('')}</div>
+  <div class="grid g2">
+    <div class="panel"><h3>导出备份</h3><p class="note">把全部 ${n} 条数据导出为 JSON 文件，可以留作备份，或之后导入。</p><div class="actions"><button class="btn pri" data-act="export">导出 JSON</button><button class="btn" data-act="copy-json">复制 JSON</button></div></div>
+    <div class="panel"><h3>导入</h3><p class="note">选择之前导出的 JSON 文件。编号相同的条目会被覆盖，其余的会新增。</p><div class="actions"><label class="btn">选择文件<input type="file" id="imp" accept=".json,application/json" hidden></label></div></div>
+    <div class="panel"><h3>提醒设置</h3><p class="note">只影响你自己看到的提醒。</p><div class="form">
+      <label class="fld"><span>未称重个体的喂食间隔（天）</span><input type="number" min="1" max="14" id="set-feed" value="${SET.feedDays}"></label>
+      <label class="fld"><span>称重间隔（天）</span><input type="number" min="1" max="90" id="set-weigh" value="${SET.weighDays}"></label>
+      <label class="fld"><span>母体最低繁殖体重（g）</span><input type="number" min="20" max="60" id="set-minf" value="${SET.minFemale}"></label>
+    </div></div>
+    <div class="panel"><h3>示例数据</h3><p class="note">${samples ? `当前有 ${samples} 条示例数据（带「示例」标记）。` : '当前没有示例数据。'}</p><div class="actions">${samples ? `<button class="btn danger" data-act="clear-sample">清除全部示例数据</button>` : `<button class="btn" data-act="load-sample">载入示例数据</button>`}</div></div>
+  </div>`;
+}
+
+// ---------- modals ----------
+let modalSubmit = null;
+function openModal(title, body, onSubmit, extraBtns=''){
+  $('#modal-root').innerHTML = `<div class="ov" data-act="close-ov"><form class="modal" id="mform" novalidate><div class="modal-h"><h2>${title}</h2><button type="button" class="btn ghost" data-act="close">关闭</button></div>${body}<div class="modal-f">${extraBtns}<span style="flex:1"></span><button type="button" class="btn" data-act="close">取消</button><button type="submit" class="btn pri">保存</button></div></form></div>`;
+  modalSubmit = onSubmit;
+  const f = $('#mform'); setTimeout(() => f.querySelector('input:not([type=hidden]),select')?.focus(), 30);
+}
+function closeModal(){ $('#modal-root').innerHTML = ''; modalSubmit = null; }
+const fld = (lbl, html, full) => `<label class="fld ${full?'full':''}"><span>${lbl}</span>${html}</label>`;
+const gopts = (sel, filt, blank='—') => `<option value="">${blank}</option>` + S.geckos.filter(filt||(()=>true)).map(g => `<option value="${g.id}" ${g.id===sel?'selected':''}>${esc(g.name)}${g.code?' · '+esc(g.code):''}</option>`).join('');
+const fd = () => Object.fromEntries(new FormData($('#mform')).entries());
+
+function geckoForm(g = {}, after){
+  const isNew = !g.id;
+  const morphs = new Set(g.morphs||[]);
+  const extra = (g.morphs||[]).filter(m => !MORPHS.includes(m));
+  const body = `<div class="form">
+    ${fld('名字 *', `<input name="name" required value="${esc(g.name)}" placeholder="例如：小火">`)}
+    ${fld('编号', `<input name="code" value="${esc(g.code)}" placeholder="例如：CG-2026-01">`)}
+    ${fld('性别', `<select name="sex">${[['U','未定'],['M','公 ♂'],['F','母 ♀']].map(([v,t])=>`<option value="${v}" ${(g.sex||'U')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
+    ${fld('状态', `<select name="status">${Object.entries(GSTATUS).map(([v,t])=>`<option value="${v}" ${(g.status||'active')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
+    ${fld('是否断尾', `<select name="tail">${[['','未填'],['intact','完整（未断尾）'],['dropped','已断尾']].map(([v,t])=>`<option value="${v}" ${(g.tail||'')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
+    ${fld('喂食方案', `<select name="planKey"><option value="">按最新体重自动分档</option>${PLAN.map(p=>`<option value="${p.key}" ${g.planKey===p.key?'selected':''}>固定为 ${p.label}（${p.rhythm}，虫${p.insect}:果泥${5-p.insect}）</option>`).join('')}</select>`)}
+    ${fld('有町 / 无町', `<select name="machi">${[['','未填'],['yes','有町'],['no','无町']].map(([v,t])=>`<option value="${v}" ${(g.machi||'')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
+    ${fld('出壳日期', `<input type="date" name="hatchDate" value="${esc(g.hatchDate)}">`)}
+    ${fld('到家日期', `<input type="date" name="acquired" value="${esc(g.acquired)}">`)}
+    <div class="fld full"><span>品系 / 表现</span><div class="checks">${MORPHS.map(m => `<label><input type="checkbox" name="morph" value="${esc(m)}" ${morphs.has(m)?'checked':''}>${esc(mzh(m))} <span class="note">${esc(m.slice(0, m.lastIndexOf(' ')))}</span></label>`).join('')}</div></div>
+    ${fld('其他品系（逗号分隔）', `<input name="morphExtra" value="${esc(extra.join('，'))}" placeholder="例如：Soft Scale，Moonglow">`, true)}
+    ${fld('基因 / 携带说明', `<input name="genes" value="${esc(g.genes)}" placeholder="例如：父本莉莉白，可能携带无黄">`, true)}
+    ${fld('父本（自家个体）', `<select name="sireId">${gopts(g.sireId, x => x.id!==g.id && x.sex!=='F', '— 选择 —')}</select>`)}
+    ${fld('或父本名称（外来）', `<input name="sireText" value="${esc(g.sireText)}" placeholder="卖家标注的父本">`)}
+    ${fld('母本（自家个体）', `<select name="damId">${gopts(g.damId, x => x.id!==g.id && x.sex!=='M', '— 选择 —')}</select>`)}
+    ${fld('或母本名称（外来）', `<input name="damText" value="${esc(g.damText)}" placeholder="卖家标注的母本">`)}
+    ${fld('来源', `<input name="source" value="${esc(g.source)}" placeholder="自繁 / 某繁殖者 / 展会">`)}
+    ${fld('价格（¥）', `<input name="price" inputmode="decimal" value="${esc(g.price)}">`)}
+    ${isNew ? fld('当前体重（g，可选）', `<input name="w0" inputmode="decimal" placeholder="例如：3.2">`) : ''}
+    ${fld('备注', `<textarea name="note">${esc(g.note)}</textarea>`, true)}
+  </div><p class="note" id="ferr"></p>`;
+  openModal(isNew ? '添加守宫' : '编辑档案', body, async () => {
+    const d = fd(); if(!d.name.trim()){ $('#ferr').textContent = '请填写名字。'; return false; }
+    const ms = [...$('#mform').querySelectorAll('input[name=morph]:checked')].map(i=>i.value).concat(d.morphExtra.split(/[,，]/).map(s=>s.trim()).filter(Boolean));
+    const o = {...g, name:d.name.trim(), code:d.code.trim(), sex:d.sex, status:d.status, planKey:d.planKey, tail:d.tail, machi:d.machi, hatchDate:d.hatchDate, acquired:d.acquired, morphs:ms, genes:d.genes.trim(), sireId:d.sireId, sireText:d.sireText.trim(), damId:d.damId, damText:d.damText.trim(), source:d.source.trim(), price:d.price.trim(), note:d.note.trim()};
+    const id = await put('geckos', o);
+    const w0 = parseFloat(d.w0); if(isNew && !isNaN(w0)) await put('logs', {geckoId:id, type:'weight', date:today(), value:w0});
+    if(after) await after(id);
+    toast(isNew ? `已添加 ${o.name}` : '档案已保存');
+    if(isNew && !after) location.hash = 'gecko-' + id;
+  }, isNew ? '' : `<button type="button" class="btn danger" data-act="del-gecko" data-id="${g.id}">删除</button>`);
+}
+
+function logForm(l){
+  const isNew = !l.id;
+  const t = l.type;
+  const body = `<div class="form">
+    ${fld('个体', `<select name="geckoId">${gopts(l.geckoId, null, '— 选择 —')}</select>`)}
+    ${fld('类型', `<select name="type">${Object.entries(LOGT).map(([k,v])=>`<option value="${k}" ${t===k?'selected':''}>${v.t}</option>`).join('')}</select>`)}
+    ${fld('日期', `<input type="date" name="date" value="${esc(l.date||today())}">`)}
+    ${t==='weight' ? fld('体重（g）', `<input name="value" inputmode="decimal" value="${l.value??''}" placeholder="例如：38.5">`) : ''}
+    ${t==='feed' ? fld('食物', `<select name="food">${(l.food && !FOODS.includes(l.food) ? [...FOODS, l.food] : FOODS).map(f=>`<option ${l.food===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`) + fld('份量', `<input name="amount" value="${esc(l.amount)}" placeholder="例如：一小盖 / 3只">`) + `<label class="fld"><span>进食情况</span><select name="ate"><option value="1">吃了</option><option value="0" ${l.ate===false?'selected':''}>拒食</option></select></label>` : ''}
+    ${fld('备注', `<textarea name="note" placeholder="${t==='health'?'例如：尾巴有轻微脱水褶皱':t==='shed'?'例如：脚趾残皮已处理':''}">${esc(l.note)}</textarea>`, true)}
+  </div><p class="note" id="ferr"></p>`;
+  openModal(`${isNew?'记':'编辑'}${LOGT[t]?.t||'记录'}`, body, async () => {
+    const d = fd();
+    if(!d.geckoId){ $('#ferr').textContent = '请选择个体。'; return false; }
+    const o = {...l, geckoId:d.geckoId, type:d.type, date:d.date||today(), note:d.note.trim()};
+    if(d.type==='weight'){ const v = parseFloat(d.value); if(isNaN(v) || v<=0 || v>200){ $('#ferr').textContent = '请填写有效的体重，单位克。'; return false; } o.value = v; } else delete o.value;
+    if(d.type==='feed'){ o.food = d.food; o.amount = (d.amount||'').trim(); o.ate = d.ate !== '0'; } else { delete o.food; delete o.amount; delete o.ate; }
+    await put('logs', o); toast('已记录');
+  }, isNew ? '' : `<button type="button" class="btn danger" data-act="del-log" data-id="${l.id}">删除</button>`);
+  $('#mform [name=type]').addEventListener('change', e => { const d = fd(); logForm({...l, ...d, type:e.target.value, value: d.value?parseFloat(d.value):l.value}); });
+}
+
+function batchForm(type='feed'){
+  const A = active();
+  const body = `<div class="form">
+    ${fld('类型', `<select name="type">${['feed','mist','weight','clean'].map(k=>`<option value="${k}" ${type===k?'selected':''}>${LOGT[k].t}</option>`).join('')}</select>`)}
+    ${fld('日期', `<input type="date" name="date" value="${today()}">`)}
+    ${type==='feed' ? fld('食物', `<select name="food">${FOODS.map(f=>`<option>${f}</option>`).join('')}</select>`) + fld('份量', `<input name="amount" placeholder="可选">`) : ''}
+    <div class="fld full"><span>${type==='weight'?'逐个填写体重（g），留空的跳过':'选择个体'} ${type!=='weight'?'<button type="button" class="btn sm ghost" data-act="check-all">全选</button>':''}</span>
+    ${type==='weight' ? `<div class="tbl-wrap"><table><tbody>${A.map(g => { const lw = lastW(g.id); return `<tr><td>${sexSym(g.sex)} ${esc(g.name)}</td><td class="note mono">${lw?`上次 ${lw.value}g · ${ago(daysSince(lw.date))}`:'未称过'}</td><td style="width:110px"><input name="w-${g.id}" inputmode="decimal" style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);width:100%"></td></tr>`; }).join('')}</tbody></table></div>`
+    : `<div class="checks">${A.map(g => `<label><input type="checkbox" name="g" value="${g.id}" ${type==='feed' && feedPlan(g).due ? 'checked' : ''}>${esc(g.name)}${type==='feed' && feedPlan(g).due ? ` <span class="note">${suggestTxt(feedPlan(g).suggest)}</span>` : ''}</label>`).join('')}</div>`}</div>
+    ${fld('备注（每条都会带上）', `<input name="note">`, true)}
+  </div><p class="note" id="ferr"></p>`;
+  openModal('批量记录', body, async () => {
+    const d = fd(); const rows = [];
+    if(d.type === 'weight'){
+      for(const g of A){ const v = parseFloat(d['w-'+g.id]); if(!isNaN(v) && v>0) rows.push({geckoId:g.id, type:'weight', date:d.date, value:v, note:d.note.trim()}); }
+    } else {
+      [...$('#mform').querySelectorAll('input[name=g]:checked')].forEach(i => { const o = {geckoId:i.value, type:d.type, date:d.date, note:d.note.trim()}; if(d.type==='feed'){ o.food=d.food; o.amount=(d.amount||'').trim(); o.ate=true; } rows.push(o); });
+    }
+    if(!rows.length){ $('#ferr').textContent = '没有选中任何个体。'; return false; }
+    for(const r of rows) await put('logs', r);
+    toast(`已记录 ${rows.length} 条`);
+  });
+  $('#mform [name=type]').addEventListener('change', e => batchForm(e.target.value));
+}
+
+function pairForm(p = {}){
+  const body = `<div class="form">
+    ${fld('公 ♂', `<select name="maleId">${gopts(p.maleId, g => g.sex==='M', '— 选择 —')}</select>`)}
+    ${fld('母 ♀', `<select name="femaleId">${gopts(p.femaleId, g => g.sex==='F', '— 选择 —')}</select>`)}
+    ${fld('开始日期', `<input type="date" name="startDate" value="${esc(p.startDate||today())}">`)}
+    ${fld('结束日期', `<input type="date" name="endDate" value="${esc(p.endDate)}">`)}
+    ${fld('状态', `<select name="status"><option value="active">进行中</option><option value="ended" ${p.status==='ended'?'selected':''}>已结束</option></select>`)}
+    ${fld('备注', `<input name="note" value="${esc(p.note)}" placeholder="例如：同箱 / 只上配一周">`)}
+  </div><div id="pwarn"></div><p class="note" id="ferr"></p>`;
+  openModal(p.id ? '编辑配对' : '新配对', body, async () => {
+    const d = fd(); if(!d.maleId || !d.femaleId){ $('#ferr').textContent = '请选择公和母。'; return false; }
+    await put('pairings', {...p, ...d}); toast('配对已保存');
+  }, p.id ? `<button type="button" class="btn danger" data-act="del-pair" data-id="${p.id}">删除</button>` : '');
+  const chk = () => { const d = fd(); const w = morphWarn(byId(d.maleId), byId(d.femaleId)); const fw = lastW(d.femaleId); if(fw && fw.value < SET.minFemale) w.push(`母体最近体重 ${fw.value}g，低于 ${SET.minFemale}g。`); const rel = d.maleId && d.femaleId && related(d.maleId, d.femaleId); if(rel) w.push(rel); $('#pwarn').innerHTML = w.map(x=>`<div class="banner bad" style="margin-top:6px">${esc(x)}</div>`).join(''); };
+  $('#mform').addEventListener('change', chk); chk();
+  if(!S.geckos.some(g=>g.sex==='M') || !S.geckos.some(g=>g.sex==='F')) $('#ferr').textContent = '需要至少一只公和一只母（在档案里把性别设好）。';
+}
+function related(a, b){
+  const anc = (id, d, m) => { if(!id || d>3) return m; const x = byId(id); if(!x) return m; m.set(id, d); anc(x.sireId,d+1,m); anc(x.damId,d+1,m); return m; };
+  const A = anc(a,0,new Map()), B = anc(b,0,new Map());
+  const c = [...A.keys()].filter(k => B.has(k));
+  return c.length ? `近亲配对：两者有共同祖先 ${c.map(gname).join('、')}。` : '';
+}
+
+function clutchForm(c){
+  const body = `<div class="form">
+    ${fld('产蛋日期', `<input type="date" name="layDate" value="${esc(c.layDate||today())}">`)}
+    ${fld('蛋数', `<input type="number" min="0" max="4" name="eggs" value="${c.eggs??2}">`)}
+    ${fld('受精蛋数', `<input type="number" min="0" max="4" name="fertile" value="${c.fertile??''}" placeholder="照蛋后填写">`)}
+    ${fld('孵化温度（°C）', `<input name="temp" value="${esc(c.temp)}" placeholder="例如：23">`)}
+    ${fld('状态', `<select name="status">${Object.entries(CLUTCH_ST).map(([k,v])=>`<option value="${k}" ${(c.status||'incubating')===k?'selected':''}>${v}</option>`).join('')}</select>`)}
+    ${fld('出壳日期', `<input type="date" name="hatchDate" value="${esc(c.hatchDate)}">`)}
+    ${fld('备注', `<input name="note" value="${esc(c.note)}" placeholder="例如：蛋有一颗塌陷">`, true)}
+  </div>`;
+  openModal(c.id ? '编辑这一窝' : '登记产蛋', body, async () => {
+    const d = fd(); await put('clutches', {...c, ...d, eggs: +d.eggs||0, fertile: d.fertile===''? null : +d.fertile}); toast('已保存');
+  }, c.id ? `<button type="button" class="btn danger" data-act="del-clutch" data-id="${c.id}">删除</button>` : '');
+}
+
+function todoForm(t){
+  openModal(t.id ? '编辑待办' : '添加待办', `<div class="form">${fld('要做的事', `<input name="text" value="${esc(t.text)}" placeholder="例如：把剩下的蟋蟀倒出来">`, true)}${fld('日期', `<input type="date" name="date" value="${esc(t.date||today())}">`)}${fld('备注', `<input name="note" value="${esc(t.note)}">`)}</div><p class="note" id="ferr"></p>`, async () => {
+    const d = fd(); if(!d.text.trim()){ $('#ferr').textContent = '请填写要做的事。'; return false; }
+    await put('todos', {...t, text:d.text.trim(), date:d.date||today(), note:d.note.trim()}); toast('已保存');
+  }, t.id ? `<button type="button" class="btn danger" data-act="del-todo" data-id="${t.id}">删除</button>` : '');
+}
+function confirmBox(text, onYes){
+  $('#modal-root').innerHTML = `<div class="ov"><div class="modal"><h2>确认</h2><p>${text}</p><div class="modal-f"><button class="btn" data-act="close">取消</button><button class="btn pri" id="yes" style="background:var(--bad);border-color:var(--bad)">确定</button></div></div></div>`;
+  $('#yes').onclick = async () => { closeModal(); await onYes(); };
+}
+
+// ---------- sample data ----------
+async function loadSample(){
+  const t = today(), D = n => addDays(t, n);
+  const mk = o => ({...o, sample:true});
+  const ids = {};
+  const G = [
+    ['papa','乌龙','M','CG-01',['Harlequin 斑纹','Black base 黑底'],D(-900),null,null,'某繁殖者'],
+    ['mama','奶茶','F','CG-02',['Lilly White 莉莉白','Cream 奶油'],D(-820),null,null,'展会'],
+    ['m2','布丁','F','CG-03',['Dalmatian 斑点','Red base 红底'],D(-700),null,null,'某繁殖者'],
+    ['k1','小火','U','CG-26-01',['Flame 火焰'],D(-95),'papa','mama','自繁'],
+    ['k2','芝麻','U','CG-26-02',['Harlequin 斑纹','Lilly White 莉莉白'],D(-95),'papa','mama','自繁'],
+  ];
+  for(const [k,name,sex,code,morphs,hatch,s,d,src] of G){
+    ids[k] = await put('geckos', mk({name,sex,code,morphs,hatchDate:hatch,sireId:s?ids[s]:'',damId:d?ids[d]:'',source:src,status:'active', sireText: k==='papa'?'Harley 线':'', note:''}));
+  }
+  const WT = {papa:[44,45.2,46.1,46.8,47.5], mama:[41.5,39.8,38.2,40.1,41.0], m2:[33.4,34.6,35.9,36.5,37.4], k1:[1.9,2.6,3.4,4.3,5.5], k2:[1.7,2.3,2.9,3.6,4.4]};
+  for(const k in WT){ for(let i=0;i<5;i++) await put('logs', mk({geckoId:ids[k], type:'weight', date: k[0]==='k' ? D(Math.round(-88+i*22)) : D(-120+i*30), value:WT[k][i]})); }
+  for(const k of ['papa','mama','m2','k1','k2']){
+    await put('logs', mk({geckoId:ids[k], type:'feed', date:D(k==='m2'?-4:-1), food:'果泥 · 不朽巷', amount:'一小盖', ate:true}));
+    await put('logs', mk({geckoId:ids[k], type:'mist', date:D(-1)}));
+  }
+  await put('logs', mk({geckoId:ids.papa, type:'feed', date:D(-3), food:'蟋蟀', amount:'3只', ate:true}));
+  await put('logs', mk({geckoId:ids.mama, type:'shed', date:D(-9), note:'蜕皮完整'}));
+  const p1 = await put('pairings', mk({maleId:ids.papa, femaleId:ids.mama, startDate:D(-200), status:'active', note:'同箱'}));
+  const p2 = await put('pairings', mk({maleId:ids.papa, femaleId:ids.m2, startDate:D(-60), status:'active'}));
+  await put('clutches', mk({pairingId:p1, layDate:D(-160), eggs:2, fertile:2, temp:'23', status:'hatched', hatchDate:D(-95), hatchlingIds:[ids.k1, ids.k2]}));
+  await put('clutches', mk({pairingId:p1, layDate:D(-64), eggs:2, fertile:2, temp:'23', status:'incubating'}));
+  await put('clutches', mk({pairingId:p2, layDate:D(-20), eggs:2, fertile:1, temp:'22', status:'incubating'}));
+  toast('示例数据已载入');
+}
+async function clearSample(){ for(const c of COLS){ for(const x of S[c].filter(x=>x.sample)) await del(c, x.id); } toast('示例数据已清除'); }
+
+// ---------- export/import ----------
+const dump = () => JSON.stringify({app:'crested-gecko-workbench', version:1, exportedAt:new Date().toISOString(), ...Object.fromEntries(COLS.map(c=>[c,S[c]]))}, null, 2);
+async function doExport(){
+  if(!dl){ toast('这里不能直接下载，请用「复制 JSON」'); return; }
+  try{ await dl.save({filename:`睫角守宫备份-${today()}.json`, data:dump()}); toast('已导出'); }
+  catch(e){ toast(e?.code==='declined' ? '已取消' : '导出失败，可以改用「复制 JSON」'); }
+}
+async function doImport(file){
+  let d; try{ d = JSON.parse(await file.text()); }catch(e){ toast('文件不是有效的 JSON'); return; }
+  const n = COLS.reduce((s,c)=>s+(Array.isArray(d[c])?d[c].length:0),0);
+  if(!n){ toast('文件里没有可导入的数据'); return; }
+  confirmBox(`将导入 ${n} 条数据（个体 ${d.geckos?.length||0}、记录 ${d.logs?.length||0}、配对 ${d.pairings?.length||0}、窝 ${d.clutches?.length||0}）。编号相同的条目会被覆盖。`, async () => {
+    for(const c of COLS) for(const x of (d[c]||[])) if(x && typeof x === 'object') await put(c, x);
+    toast(`已导入 ${n} 条`);
+  });
+}
+
+// ---------- events ----------
+document.addEventListener('click', async e => {
+  const go = e.target.closest('[data-go]'); if(go){ location.hash = go.dataset.go; return; }
+  const pd = e.target.closest('[data-ped]'); if(pd){ ui.pedId = pd.dataset.ped; render(); return; }
+  const a = e.target.closest('[data-act]'); if(!a) return;
+  const act = a.dataset.act, id = a.dataset.id;
+  if(act === 'close-ov'){ if(e.target === a) closeModal(); return; }
+  switch(act){
+    case 'close': closeModal(); break;
+    case 'new-gecko': geckoForm(); break;
+    case 'new-todo': todoForm({date: today()}); break;
+    case 'edit-todo': todoForm({...S.todos.find(x=>x.id===id)}); break;
+    case 'del-todo': confirmBox('删除这条待办？', () => del('todos', id).then(()=>toast('已删除'))); break;
+    case 'done-todo': { const x = S.todos.find(t=>t.id===id); if(x){ await put('todos', {...x, done:true, doneAt: today()}); toast('已完成'); } break; }
+    case 'edit-gecko': geckoForm(byId(id)); break;
+    case 'del-gecko': { const g = byId(id); const nl = S.logs.filter(l=>l.geckoId===id).length; confirmBox(`删除「${esc(g.name)}」以及它的 ${nl} 条记录？这一步不能撤销。如果只是卖掉了，建议把状态改成「已出售」。`, async () => { for(const l of S.logs.filter(l=>l.geckoId===id)) await del('logs', l.id); await del('geckos', id); location.hash = 'geckos'; toast('已删除'); }); break; }
+    case 'quick': logForm({geckoId:id, type:a.dataset.type, date:today(), food:a.dataset.food||undefined}); break;
+    case 'edit-log': logForm({...S.logs.find(l=>l.id===id)}); break;
+    case 'del-log': confirmBox('删除这条记录？', () => del('logs', id).then(()=>toast('已删除'))); break;
+    case 'batch': batchForm(a.dataset.type||'feed'); break;
+    case 'check-all': { const cbs = [...$('#mform').querySelectorAll('input[name=g]')]; const all = cbs.every(c=>c.checked); cbs.forEach(c=>c.checked=!all); break; }
+    case 'mist-all': { e.preventDefault(); const A = active().filter(g => lastLog(g.id,'mist')?.date !== today()); if(!A.length){ toast('今天都已经喷过水了'); break; } for(const g of A) await put('logs', {geckoId:g.id, type:'mist', date:today()}); toast(`已为 ${A.length} 只记录喷水`); break; }
+    case 'theme': THEME = a.dataset.v; try{ localStorage.setItem('cg-theme', THEME); }catch(err){} applyTheme(); render(); break;
+    case 'filter': ui[a.dataset.k] = a.dataset.v; render(); break;
+    case 'wsel': { const i = ui.wSel.indexOf(id); if(i>=0) ui.wSel.splice(i,1); else ui.wSel.push(id); render(); break; }
+    case 'wrange': ui.wRange = a.dataset.v; render(); break;
+    case 'ped': ui.pedId = id; break;
+    case 'new-pair': pairForm(); break;
+    case 'edit-pair': pairForm({...S.pairings.find(p=>p.id===id)}); break;
+    case 'del-pair': { const nc = S.clutches.filter(c=>c.pairingId===id); confirmBox(`删除这个配对和它的 ${nc.length} 窝记录？出壳的个体档案会保留。`, async () => { for(const c of nc) await del('clutches', c.id); await del('pairings', id); toast('已删除'); }); break; }
+    case 'new-clutch': clutchForm({pairingId:id}); break;
+    case 'edit-clutch': clutchForm({...S.clutches.find(c=>c.id===id)}); break;
+    case 'del-clutch': confirmBox('删除这一窝的记录？', () => del('clutches', id).then(()=>toast('已删除'))); break;
+    case 'hatch': { const c = S.clutches.find(x=>x.id===id), p = S.pairings.find(x=>x.id===c.pairingId); const n = (c.hatchlingIds||[]).length + 1;
+      geckoForm({name:'', sex:'U', status:'active', hatchDate: c.hatchDate||today(), sireId:p?.maleId||'', damId:p?.femaleId||'', source:'自繁', code:''}, async kid => { await put('clutches', {...c, status:'hatched', hatchDate:c.hatchDate||today(), hatchlingIds:[...(c.hatchlingIds||[]), kid]}); });
+      setTimeout(()=>{ const i = $('#mform [name=name]'); if(i) i.placeholder = `第 ${n} 只宝宝`; }, 0); break; }
+    case 'load-sample': a.disabled = true; try{ await loadSample(); }finally{ a.disabled = false; } break;
+    case 'clear-sample': confirmBox('清除所有带「示例」标记的数据？你自己添加的数据不受影响。', clearSample); break;
+    case 'export': doExport(); break;
+    case 'copy-json': { const s = dump(); try{ await navigator.clipboard.writeText(s); toast('已复制到剪贴板'); }catch(err){ openModal('复制 JSON', `<textarea id="cj" style="width:100%;min-height:240px;font-family:var(--f-mono);font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px">${esc(s)}</textarea><p class="note">已选中全部内容，手动复制即可。</p>`, async()=>{}); setTimeout(()=>{ const t=$('#cj'); t.focus(); t.select(); },50); } break; }
+  }
+});
+document.addEventListener('submit', async e => {
+  if(e.target.id === 'login'){ e.preventDefault(); TOKEN = $('#pw').value; try{ localStorage.setItem('cg-token', TOKEN); }catch(err){} loginMsg = ''; mode = 'loading'; if(!(await tryServer())){ goLocal('连不上服务器'); } return; }
+  if(e.target.id !== 'mform') return; e.preventDefault();
+  if(!modalSubmit) return;
+  const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+  try{ const r = await modalSubmit(); if(r !== false) closeModal(); else btn.disabled = false; }catch(err){ btn.disabled = false; }
+});
+document.addEventListener('input', e => {
+  if(e.target.id === 'q'){ ui.q = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(pos,pos); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if(t.id === 'logGecko'){ ui.logGecko = t.value; render(); }
+  if(t.id === 'pedSel'){ ui.pedId = t.value; render(); }
+  if(t.id === 'imp' && t.files[0]){ doImport(t.files[0]); t.value=''; }
+  if(t.id === 'set-feed'){ SET.feedDays = Math.max(1, +t.value||3); saveSet(); }
+  if(t.id === 'set-weigh'){ SET.weighDays = Math.max(1, +t.value||30); saveSet(); }
+  if(t.id === 'set-minf'){ SET.minFemale = Math.max(1, +t.value||35); saveSet(); }
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && modalSubmit !== undefined && $('#modal-root').innerHTML) closeModal(); });
+window.addEventListener('hashchange', route);
+
+route();
+initStore();
+})();
+</script>
+
+</body></html>
