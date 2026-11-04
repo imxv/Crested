@@ -7,7 +7,7 @@
 /* Layout: 左侧竖排导航 + 主工作区；手机端导航变为顶部横向滚动条。夜行树栖：苔绿底色、哈利金点缀 */
 :root{
   --bg:#f3f5ef; --panel:#ffffff; --panel-2:#eaeee3; --line:#d6dccb;
-  --fg:#1e2619; --muted:#5f6b56; --accent:#3f6b2e; --accent-fg:#ffffff; --accent-soft:#dfe9d4;
+  --fg:#1e2619; --muted:#5f6b56; --accent:#3f6b2e; --accent-fg:#ffffff; --accent-soft:#dfe9d4; --trait:#3f6b2e; --trait-soft:#dfe9d4;
   --gold:#b7841c; --gold-soft:#f5e8c8; --fruit:#3f6b2e;
   --ok:#2f7a45; --warn:#a86a0c; --bad:#b23a2e; --warn-soft:#f8ead2; --bad-soft:#f6dcd8; --ok-soft:#d9eedd;
   --male:#2f63a8; --female:#b04577; --unk:#7a7d72;
@@ -19,7 +19,7 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-cg="light"]){
   --bg:#131416; --panel:#1b1c1f; --panel-2:#24262a; --line:#303237;
-  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19;
+  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19; --trait:#9cc4a4; --trait-soft:#1e2a22;
   --gold:#e2b45f; --gold-soft:#332a19; --fruit:#e88fa8;
   --ok:#7cc79a; --warn:#e8a857; --bad:#f08072; --warn-soft:#352816; --bad-soft:#3a1f1c; --ok-soft:#1b2e23;
   --male:#7fb0ee; --female:#ee90b6; --unk:#a7a8ae;
@@ -28,7 +28,7 @@
 }}
 :root[data-theme="dark"]:not([data-cg="light"]),:root[data-cg="dark"]{
   --bg:#131416; --panel:#1b1c1f; --panel-2:#24262a; --line:#303237;
-  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19;
+  --fg:#ebebed; --muted:#9a9ba2; --accent:#e2b45f; --accent-fg:#1b1406; --accent-soft:#332a19; --trait:#9cc4a4; --trait-soft:#1e2a22;
   --gold:#e2b45f; --gold-soft:#332a19; --fruit:#e88fa8;
   --ok:#7cc79a; --warn:#e8a857; --bad:#f08072; --warn-soft:#352816; --bad-soft:#3a1f1c; --ok-soft:#1b2e23;
   --male:#7fb0ee; --female:#ee90b6; --unk:#a7a8ae;
@@ -108,6 +108,7 @@ main{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px)
 .msec > span{font-size:14px;color:var(--fg);font-weight:600;letter-spacing:.08em;margin-bottom:4px}
 .mgrp-h{font-size:12px;color:var(--fg);margin-bottom:6px;display:flex;gap:8px;align-items:baseline}
 .mgrp-h small{color:var(--muted)}
+.checks.morphs.trait label:has(input:checked){border-color:var(--trait);background:var(--trait-soft);color:var(--trait)}
 .checks.morphs.gene label:has(input:checked){border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
 .sex{font-weight:700}
 .sex.m{color:var(--male)} .sex.f{color:var(--female)} .sex.u{color:var(--unk)}
