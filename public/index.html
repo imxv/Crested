@@ -315,7 +315,7 @@ const ui = { calMonth:null, calDay:null, view:'overview', geckoId:null, sexFilte
 
 // 品系分两大类：基因（可遗传、已证实的单基因）和表现（多基因的花纹/底色）
 const MORPH_GROUPS = [
-  {kind:'gene', t:'隐性基因', note:'两份才显现；只带一份的写「携带」', list:['Axanthic 无黄','Phantom 幻影','Het Axanthic 携带无黄','Het Phantom 携带幻影']},
+  {kind:'gene', t:'隐性基因', note:'两份才显现；只带一份的写「携带」', list:['Axanthic 缺黄','Phantom 幻影','Het Axanthic 携带缺黄','Het Phantom 携带幻影']},
   {kind:'gene', t:'不完全显性基因', note:'一份就显现，两份为超级型', list:['Lilly White 莉莉白','Cappuccino 卡布奇诺','Sable 黑貂','Soft Scale 软鳞']},
   {kind:'trait', t:'花纹', list:['Harlequin 斑纹','Extreme Harlequin 极斑','Pinstripe 直线','Quad stripe 四线','Flame 火焰','Dalmatian 斑点','Super Dalmatian 超斑点','Tiger 虎纹','Brindle 虎斑','Bicolor 双色','Tricolor 三色','Patternless 无纹','Orange stripe 橙纹']},
   {kind:'trait', t:'底色', list:['Red base 红底','Yellow base 黄底','Black base 黑底','Cream 奶油']}
@@ -324,7 +324,7 @@ const MORPHS = MORPH_GROUPS.flatMap(g => g.list);
 const GENE_SET = new Set(MORPH_GROUPS.filter(g => g.kind === 'gene').flatMap(g => g.list));
 const sortMorphs = ms => [...ms].sort((a,b) => (GENE_SET.has(b)?1:0) - (GENE_SET.has(a)?1:0));
 const morphTag = m => `<span class="tag ${GENE_SET.has(m)?'gene':''}">${esc(mzh(m))}</span>`;
-const MORPH_ALIAS = {'Pinstripe 侧线':'Pinstripe 直线','Red 红':'Red base 红底','Yellow 黄':'Yellow base 黄底','Dark base 暗底':'Black base 黑底','Orange 橙':'Orange stripe 橙纹'};
+const MORPH_ALIAS = {'Axanthic 无黄':'Axanthic 缺黄','Het Axanthic 携带无黄':'Het Axanthic 携带缺黄','Pinstripe 侧线':'Pinstripe 直线','Red 红':'Red base 红底','Yellow 黄':'Yellow base 黄底','Dark base 暗底':'Black base 黑底','Orange 橙':'Orange stripe 橙纹'};
 const normG = g => (g && Array.isArray(g.morphs)) ? {...g, morphs:[...new Set(g.morphs.map(m => MORPH_ALIAS[m]||m))]} : g;
 const mzh = m => { const i = String(m).lastIndexOf(' '); return i > 0 ? m.slice(i+1) : m; };
 const LOGT = {
@@ -1022,7 +1022,7 @@ function geckoForm(g = {}, after){
     ${fld('到家日期', `<input type="date" name="acquired" value="${esc(g.acquired)}">`)}
     ${['gene','trait'].map(kind => `<div class="fld full msec"><span>${kind==='gene'?'基因':'表现'}</span>${MORPH_GROUPS.filter(x => x.kind === kind).map(grp => `<div class="mgrp"><div class="mgrp-h">${grp.t}${grp.note?`<small>${grp.note}</small>`:''}</div><div class="checks morphs ${kind}">${grp.list.map(m => `<label title="${esc(m.slice(0, m.lastIndexOf(' ')))}"><input type="checkbox" name="morph" value="${esc(m)}" ${morphs.has(m)?'checked':''}>${esc(mzh(m))}</label>`).join('')}</div></div>`).join('')}</div>`).join('')}
     ${fld('其他品系（逗号分隔）', `<input name="morphExtra" value="${esc(extra.join('，'))}" placeholder="例如：白墙，月光">`, true)}
-    ${fld('基因备注', `<input name="genes" value="${esc(g.genes)}" placeholder="例如：父本莉莉白，可能携带无黄">`, true)}
+    ${fld('基因备注', `<input name="genes" value="${esc(g.genes)}" placeholder="例如：父本莉莉白，可能携带缺黄">`, true)}
     ${fld('父本（自家个体）', `<select name="sireId">${gopts(g.sireId, x => x.id!==g.id && x.sex!=='F', '— 选择 —')}</select>`)}
     ${fld('或父本名称（外来）', `<input name="sireText" value="${esc(g.sireText)}" placeholder="卖家标注的父本">`)}
     ${fld('母本（自家个体）', `<select name="damId">${gopts(g.damId, x => x.id!==g.id && x.sex!=='M', '— 选择 —')}</select>`)}
