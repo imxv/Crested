@@ -306,7 +306,7 @@ const mzh = m => { const i = String(m).lastIndexOf(' '); return i > 0 ? m.slice(
 const LOGT = {
   feed:{t:'喂食', icon:'🍽'}, mist:{t:'喷水'}, weight:{t:'称重'}, shed:{t:'蜕皮'}, clean:{t:'清洁'}, health:{t:'健康'}, note:{t:'备注'}
 };
-const FOODS = ['果泥 · 不朽巷','果泥 · 石像鬼','蟋蟀'];
+const FOODS = ['果泥 · 不朽巷 香蕉味','果泥 · 石像鬼 香蕉味','蟋蟀'];
 const INSECTS = ['蟋蟀','杜比亚','黄粉虫'];
 // 喂食方案（按体重）：每 5 顿里虫子与果泥的比例 + 喂/休节奏
 const PLAN = [
@@ -656,7 +656,7 @@ function vOverview(){
     const fp = feedPlan(g);
     if(fp.due) tasks.push({p: fp.overdue?1:2, g, html: fp.overdue ? `<span class="pill bad">喂食逾期</span>` : `<span class="pill warn">今天该喂</span>`,
       txt: `${fp.tier ? `${fp.tier.label} · 建议喂<b>${suggestTxt(fp.suggest)}</b> · ` : '未称重，按 '+SET.feedDays+' 天间隔 · '}${fp.lf ? `上次 ${ago(fp.n)}（${esc(fp.lf.food||'')}）` : '还没有喂食记录'}`,
-      act:`<button class="btn sm" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':fp.suggest==='fruit'?'果泥 · 不朽巷':''}">记喂食</button>`});
+      act:`<button class="btn sm" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':fp.suggest==='fruit'?FOODS[0]:''}">记喂食</button>`});
     const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null;
     if(wn == null || wn >= SET.weighDays) tasks.push({p:3, g, html:`<span class="pill">该称重</span>`, txt: lw ? `上次 ${lw.value}g，${ago(wn)}` : '还没有体重记录', act:`<button class="btn sm" data-act="quick" data-type="weight" data-id="${g.id}">记体重</button>`});
   });
@@ -762,7 +762,7 @@ function feedPanel(g){
   const fp = feedPlan(g);
   if(!fp.tier) return `<div class="panel"><h3>喂食方案</h3><p class="note">还没有体重记录，先称一次重，就会按体重段给出虫子和果泥的比例和喂休节奏。现在按 ${SET.feedDays} 天间隔提醒。</p></div>`;
   const st = fp.newArrival ? '<span class="pill">刚到家，今天不喂</span>' : fp.n === 0 ? '<span class="pill ok">今天已喂</span>' : fp.overdue ? '<span class="pill bad">喂食逾期</span>' : fp.due ? '<span class="pill warn">今天该喂</span>' : '<span class="pill">今天休息</span>';
-  return `<div class="panel"><div class="head" style="margin-bottom:8px"><h3>喂食方案 · ${fp.tier.label}${fp.manual?' <span class="note">手动指定</span>':''}</h3><div class="actions">${st}${fp.due?` <button class="btn sm pri" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':'果泥 · 不朽巷'}">记喂食（${suggestTxt(fp.suggest)}）</button>`:''}</div></div>
+  return `<div class="panel"><div class="head" style="margin-bottom:8px"><h3>喂食方案 · ${fp.tier.label}${fp.manual?' <span class="note">手动指定</span>':''}</h3><div class="actions">${st}${fp.due?` <button class="btn sm pri" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':FOODS[0]}">记喂食（${suggestTxt(fp.suggest)}）</button>`:''}</div></div>
     <dl class="dl"><dt>方案比例</dt><dd>${ratioBar(fp.tier.insect)} <span class="note">每 5 顿：虫子 ${fp.tier.insect}，果泥 ${5-fp.tier.insect}</span></dd>
     <dt>节奏</dt><dd>${rhythmTxt(fp.tier.rhythm)} <span class="note">循环；上次喂食 ${fp.lf?ago(fp.n):'—'}</span></dd>
     <dt>下一顿建议</dt><dd><b>${suggestTxt(fp.suggest)}</b> <span class="note">依据最近 ${Math.min(4, fp.actualN)} 顿里有 ${logsOf(g.id,'feed').slice(0,4).filter(isInsect).length} 顿虫子</span></dd>
@@ -1135,7 +1135,7 @@ async function loadSample(){
   const WT = {papa:[44,45.2,46.1,46.8,47.5], mama:[41.5,39.8,38.2,40.1,41.0], m2:[33.4,34.6,35.9,36.5,37.4], k1:[1.9,2.6,3.4,4.3,5.5], k2:[1.7,2.3,2.9,3.6,4.4]};
   for(const k in WT){ for(let i=0;i<5;i++) await put('logs', mk({geckoId:ids[k], type:'weight', date: k[0]==='k' ? D(Math.round(-88+i*22)) : D(-120+i*30), value:WT[k][i]})); }
   for(const k of ['papa','mama','m2','k1','k2']){
-    await put('logs', mk({geckoId:ids[k], type:'feed', date:D(k==='m2'?-4:-1), food:'果泥 · 不朽巷', amount:'一小盖', ate:true}));
+    await put('logs', mk({geckoId:ids[k], type:'feed', date:D(k==='m2'?-4:-1), food:FOODS[0], amount:'一小盖', ate:true}));
     await put('logs', mk({geckoId:ids[k], type:'mist', date:D(-1)}));
   }
   await put('logs', mk({geckoId:ids.papa, type:'feed', date:D(-3), food:'蟋蟀', amount:'3只', ate:true}));
