@@ -1,0 +1,29 @@
+# 推送到 production 分支后自动部署到 Cloudflare Pages（crested-gecko）。
+# 只上传网页和后端，不动 D1 里的数据。
+# 需要在 GitHub 仓库 Settings → Secrets and variables → Actions 里加两个机密：
+#   CLOUDFLARE_API_TOKEN   权限：Account → Cloudflare Pages → Edit；Account → D1 → Edit
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare 账号 ID
+name: 部署到 Cloudflare
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 上传 Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 pages deploy --project-name crested-gecko --branch main --commit-hash "$GITHUB_SHA" --commit-message "$(git log -1 --pretty=%s)"

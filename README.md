@@ -16,7 +16,11 @@
 
 ## 部署
 
-需要 Node.js 18+。运行 `bash deploy.sh`，第一次会打开浏览器登录 Cloudflare。
+**自动部署**：把代码推送到 `production` 分支，GitHub Actions 会自动上传到 Cloudflare Pages（`.github/workflows/deploy.yml`，只传网页和后端，不动数据）。也可以在 GitHub 的 Actions 页手动点 Run workflow。需要先在仓库的 Actions 机密里加 `CLOUDFLARE_API_TOKEN`（Cloudflare Pages: Edit、D1: Edit）和 `CLOUDFLARE_ACCOUNT_ID`。
+
+平时在 `main` 上改，要上线时：`git push origin main:production`。
+
+**手动部署**：需要 Node.js 18+。运行 `bash deploy.sh`，第一次会打开浏览器登录 Cloudflare。
 
 `seed.sql` / `seed.json` 是个人数据，已在 `.gitignore` 里排除；放在目录下时，部署脚本会导入一次。
 
