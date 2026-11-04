@@ -102,6 +102,13 @@ main{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px)
 .pill.ok{background:var(--ok-soft);color:var(--ok)}
 .pill.gold{background:var(--gold-soft);color:var(--gold)}
 .tag{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:5px;font-size:12px;color:var(--muted);margin:2px 4px 2px 0;white-space:nowrap}
+.tag.gene{border-color:transparent;background:var(--gold-soft);color:var(--gold)}
+.mgrp + .mgrp{margin-top:10px}
+.msec{border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.msec > span{font-size:14px;color:var(--fg);font-weight:600;letter-spacing:.08em;margin-bottom:4px}
+.mgrp-h{font-size:12px;color:var(--fg);margin-bottom:6px;display:flex;gap:8px;align-items:baseline}
+.mgrp-h small{color:var(--muted)}
+.checks.morphs.gene label:has(input:checked){border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
 .sex{font-weight:700}
 .sex.m{color:var(--male)} .sex.f{color:var(--female)} .sex.u{color:var(--unk)}
 .sample{font-size:11px;color:var(--gold);border:1px dashed var(--gold);border-radius:4px;padding:0 5px;margin-left:6px;white-space:nowrap}
@@ -200,6 +207,12 @@ td.r,th.r{text-align:right}
 .checks label{display:inline-flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 10px;cursor:pointer;font-size:13px}
 .checks label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .checks input{margin:0}
+.checks.morphs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.checks.morphs label{justify-content:center;border-radius:8px;padding:6px 8px;font-size:13px;position:relative;white-space:nowrap;background:var(--panel)}
+.checks.morphs label:hover{border-color:var(--accent)}
+.checks.morphs input{position:absolute;opacity:0;pointer-events:none}
+.checks.morphs label:has(input:checked){font-weight:600}
+.checks.morphs label:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
 .modal-f{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:60;max-width:calc(100% - 32px)}
 
@@ -299,7 +312,17 @@ const S = {geckos:[],logs:[],pairings:[],clutches:[],todos:[]};
 let mode = 'loading', db = null, dl = null, loadErr = '';
 const ui = { calMonth:null, calDay:null, view:'overview', geckoId:null, sexFilter:'all', statusFilter:'active', q:'', logType:'all', logGecko:'all', pedId:null, wSel:null, wRange:'all' };
 
-const MORPHS = ['Harlequin 斑纹','Extreme Harlequin 极斑','Pinstripe 直线','Flame 火焰','Dalmatian 斑点','Super Dalmatian 超斑点','Tiger 虎纹','Brindle 虎斑','Bicolor 双色','Tricolor 三色','Patternless 无纹','Lilly White 莉莉白','Axanthic 无黄','Cappuccino 卡布奇诺','Phantom 幻影','Quad stripe 四线','Orange stripe 橙纹','Cream 奶油','Red base 红底','Yellow base 黄底','Black base 黑底'];
+// 品系分两大类：基因（可遗传、已证实的单基因）和表现（多基因的花纹/底色）
+const MORPH_GROUPS = [
+  {kind:'gene', t:'隐性基因', note:'两份才显现；只带一份的写「携带」', list:['Axanthic 无黄','Phantom 幻影','Het Axanthic 携带无黄','Het Phantom 携带幻影']},
+  {kind:'gene', t:'不完全显性基因', note:'一份就显现，两份为超级型', list:['Lilly White 莉莉白','Cappuccino 卡布奇诺','Sable 黑貂','Soft Scale 软鳞']},
+  {kind:'trait', t:'花纹', list:['Harlequin 斑纹','Extreme Harlequin 极斑','Pinstripe 直线','Quad stripe 四线','Flame 火焰','Dalmatian 斑点','Super Dalmatian 超斑点','Tiger 虎纹','Brindle 虎斑','Bicolor 双色','Tricolor 三色','Patternless 无纹','Orange stripe 橙纹']},
+  {kind:'trait', t:'底色', list:['Red base 红底','Yellow base 黄底','Black base 黑底','Cream 奶油']}
+];
+const MORPHS = MORPH_GROUPS.flatMap(g => g.list);
+const GENE_SET = new Set(MORPH_GROUPS.filter(g => g.kind === 'gene').flatMap(g => g.list));
+const sortMorphs = ms => [...ms].sort((a,b) => (GENE_SET.has(b)?1:0) - (GENE_SET.has(a)?1:0));
+const morphTag = m => `<span class="tag ${GENE_SET.has(m)?'gene':''}">${esc(mzh(m))}</span>`;
 const MORPH_ALIAS = {'Pinstripe 侧线':'Pinstripe 直线','Red 红':'Red base 红底','Yellow 黄':'Yellow base 黄底','Dark base 暗底':'Black base 黑底','Orange 橙':'Orange stripe 橙纹'};
 const normG = g => (g && Array.isArray(g.morphs)) ? {...g, morphs:[...new Set(g.morphs.map(m => MORPH_ALIAS[m]||m))]} : g;
 const mzh = m => { const i = String(m).lastIndexOf(' '); return i > 0 ? m.slice(i+1) : m; };
@@ -715,7 +738,7 @@ function card(g){
   const st = g.status && g.status !== 'active' ? `<span class="pill">${GSTATUS[g.status]}</span>` : '';
   return `<button class="card ${g.status&&g.status!=='active'?'gone':''}" data-go="gecko-${g.id}">
     <div class="top"><span class="name">${sexSym(g.sex)} ${esc(g.name)}</span><span class="mono note">${esc(g.code||'')}</span></div>
-    <div>${(g.morphs||[]).map(m => `<span class="tag">${esc(mzh(m))}</span>`).join('') || '<span class="note">未填品系</span>'}${g.tail==='dropped'?'<span class="tag">断尾</span>':''}${g.machi==='yes'?'<span class="tag">有町</span>':g.machi==='no'?'<span class="tag">无町</span>':''}${st}${sampleMark(g)}</div>
+    <div>${sortMorphs(g.morphs||[]).map(morphTag).join('') || '<span class="note">未填品系</span>'}${g.tail==='dropped'?'<span class="tag">断尾</span>':''}${g.machi==='yes'?'<span class="tag">有町</span>':g.machi==='no'?'<span class="tag">无町</span>':''}${st}${sampleMark(g)}</div>
     <div class="meta"><div><small>体重</small><b>${lw ? lw.value+'g' : '—'}</b></div><div><small>年龄</small><b>${age(g.hatchDate)}</b></div><div><small>上次喂食</small><b>${lf ? ago(daysSince(lf.date)) : '—'}</b></div></div>
   </button>`;
 }
@@ -744,7 +767,7 @@ function vGecko(){
     <div class="panel"><h3>档案</h3><dl class="dl">
       <dt>尾巴</dt><dd>${g.tail==='dropped'?'已断尾':g.tail==='intact'?'完整':'—'}</dd>
       <dt>有町 / 无町</dt><dd>${g.machi==='yes'?'有町':g.machi==='no'?'无町':'—'}</dd>
-      <dt>品系 / 基因</dt><dd>${(g.morphs||[]).map(m=>`<span class="tag">${esc(m)}</span>`).join('') || '—'}${g.genes?`<div>${esc(g.genes)}</div>`:''}</dd>
+      <dt>基因 / 表现</dt><dd>${sortMorphs(g.morphs||[]).map(morphTag).join('') || '—'}${g.genes?`<div>${esc(g.genes)}</div>`:''}</dd>
       <dt>父本 ♂</dt><dd>${par(g.sireId, g.sireText)}</dd>
       <dt>母本 ♀</dt><dd>${par(g.damId, g.damText)}</dd>
       <dt>来源</dt><dd>${esc(g.source||'—')}${g.price?` · <span class="mono">¥${esc(g.price)}</span>`:''}</dd>
@@ -996,9 +1019,9 @@ function geckoForm(g = {}, after){
     ${fld('有町 / 无町', `<select name="machi">${[['','未填'],['yes','有町'],['no','无町']].map(([v,t])=>`<option value="${v}" ${(g.machi||'')===v?'selected':''}>${t}</option>`).join('')}</select>`)}
     ${fld('出壳日期', `<input type="date" name="hatchDate" value="${esc(g.hatchDate)}">`)}
     ${fld('到家日期', `<input type="date" name="acquired" value="${esc(g.acquired)}">`)}
-    <div class="fld full"><span>品系 / 表现</span><div class="checks">${MORPHS.map(m => `<label><input type="checkbox" name="morph" value="${esc(m)}" ${morphs.has(m)?'checked':''}>${esc(mzh(m))} <span class="note">${esc(m.slice(0, m.lastIndexOf(' ')))}</span></label>`).join('')}</div></div>
-    ${fld('其他品系（逗号分隔）', `<input name="morphExtra" value="${esc(extra.join('，'))}" placeholder="例如：Soft Scale，Moonglow">`, true)}
-    ${fld('基因 / 携带说明', `<input name="genes" value="${esc(g.genes)}" placeholder="例如：父本莉莉白，可能携带无黄">`, true)}
+    ${['gene','trait'].map(kind => `<div class="fld full msec"><span>${kind==='gene'?'基因':'表现'}</span>${MORPH_GROUPS.filter(x => x.kind === kind).map(grp => `<div class="mgrp"><div class="mgrp-h">${grp.t}${grp.note?`<small>${grp.note}</small>`:''}</div><div class="checks morphs ${kind}">${grp.list.map(m => `<label title="${esc(m.slice(0, m.lastIndexOf(' ')))}"><input type="checkbox" name="morph" value="${esc(m)}" ${morphs.has(m)?'checked':''}>${esc(mzh(m))}</label>`).join('')}</div></div>`).join('')}</div>`).join('')}
+    ${fld('其他品系（逗号分隔）', `<input name="morphExtra" value="${esc(extra.join('，'))}" placeholder="例如：白墙，月光">`, true)}
+    ${fld('基因备注', `<input name="genes" value="${esc(g.genes)}" placeholder="例如：父本莉莉白，可能携带无黄">`, true)}
     ${fld('父本（自家个体）', `<select name="sireId">${gopts(g.sireId, x => x.id!==g.id && x.sex!=='F', '— 选择 —')}</select>`)}
     ${fld('或父本名称（外来）', `<input name="sireText" value="${esc(g.sireText)}" placeholder="卖家标注的父本">`)}
     ${fld('母本（自家个体）', `<select name="damId">${gopts(g.damId, x => x.id!==g.id && x.sex!=='M', '— 选择 —')}</select>`)}
