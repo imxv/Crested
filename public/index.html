@@ -294,6 +294,14 @@ td.r,th.r{text-align:right}
 .task.agg > .pill{margin-top:3px}
 .gnum:hover{border-color:var(--accent);color:var(--accent)}
 .gnum b{font-weight:500;color:var(--muted)} .gnum em{font-style:normal;color:var(--warn)}
+.days{display:flex;flex-direction:column;gap:10px}
+.day{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.day-h{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--panel-2);flex-wrap:wrap}
+.day-sum{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.day-b{padding:2px 12px}
+.day-r{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid var(--line)}
+.day-r:first-child{border-top:0}
+.day-r .k{font-size:12px;color:var(--muted)}
 .struck{text-decoration:line-through;color:var(--muted)}
 @media (max-width:1100px){.cal-wrap{grid-template-columns:minmax(0,1fr)} .cal-day{position:static}}
 @media (max-width:620px){
@@ -351,6 +359,12 @@ const PLAN = [
 ];
 const tierOf = w => w == null ? null : PLAN.find(p => w >= p.min && w < p.max) || PLAN[0];
 const isInsect = l => INSECTS.includes(l.food);
+const isInsectFood = f => INSECTS.includes(f);
+const hasNum = v => typeof v === 'number' && !isNaN(v);
+// 蟋蟀：投放 given 只，第二天数剩下的，吃掉 eaten 只（eaten 为空 = 还没数）
+const eatTxt = l => hasNum(l.eaten) ? `吃 ${l.eaten}${hasNum(l.given)?`/${l.given}`:''} 只` : hasNum(l.given) ? `投 ${l.given} 只，待数` : '';
+const pendingEat = () => S.logs.filter(l => l.type === 'feed' && isInsect(l) && hasNum(l.given) && !hasNum(l.eaten)).sort((a,b) => (a.date||'').localeCompare(b.date||'') || cmpCode(byId(a.geckoId)||{}, byId(b.geckoId)||{}));
+const intOrNull = v => { const n = parseInt(v, 10); return isNaN(n) || n < 0 ? null : n; };
 function feedStreak(gid){ // 最近一段连续喂食的天数
   const ds = [...new Set(logsOf(gid,'feed').map(l => l.date))].sort().reverse();
   if(!ds.length) return 0; let n = 1;
@@ -664,7 +678,7 @@ function calDayPanel(d, it){
     + it.hatch.map(c => { const p = S.pairings.find(x => x.id === c.pairingId); return `<div class="task"><span class="pill gold">出壳窗口</span><div class="what">${esc(gname(p?.femaleId))} 的蛋<small>产于 ${c.layDate}，60~90 天，到 ${addDays(c.layDate,90)} 为止</small></div></div>`; }).join('');
   const logs = ['feed','mist','weight','shed','clean','health','note'].filter(k => it.logs[k]?.length).map(k => {
     const L = it.logs[k];
-    const names = `<div class="gnums">${L.slice().sort((a,b) => cmpCode(byId(a.geckoId)||{}, byId(b.geckoId)||{})).map(l => { const g = byId(l.geckoId); const extra = k==='weight' ? `<b class="mono">${l.value}g</b>` : k==='feed' && l.ate===false ? '<em>拒食</em>' : ''; return g ? gNum(g, extra) : `<span class="gnum">已删除</span>`; }).join('')}</div>`;
+    const names = `<div class="gnums">${L.slice().sort((a,b) => cmpCode(byId(a.geckoId)||{}, byId(b.geckoId)||{})).map(l => { const g = byId(l.geckoId); const extra = k==='weight' ? `<b class="mono">${l.value}g</b>` : k==='feed' && hasNum(l.eaten) ? `<b class="mono">${l.eaten}${hasNum(l.given)?'/'+l.given:''}</b>` : k==='feed' && hasNum(l.given) ? `<b class="mono">投${l.given}</b>` : k==='feed' && l.ate===false ? '<em>拒食</em>' : ''; return g ? gNum(g, extra) : `<span class="gnum">已删除</span>`; }).join('')}</div>`;
     const foods = k==='feed' ? [...new Set(L.map(l => l.food).filter(Boolean))].map(esc).join('、') : '';
     const notes = [...new Set(L.map(l => l.note).filter(Boolean))].map(esc).join('；');
     return `<div class="task"><span class="pill ok">${LOGT[k]?.t||k} ${L.length}</span><div class="what">${names}${foods||notes?`<small>${[foods, notes].filter(Boolean).join(' · ')}</small>`:''}</div></div>`;
@@ -704,6 +718,8 @@ function vOverview(){
     const tip = [ins.length ? `建议喂虫子：${ins.join('、')}` : '', fr.length ? `建议喂果泥：${fr.join('、')}` : '', none.length ? `未称重：${none.join('、')}` : ''].filter(Boolean).join('<br>');
     tasks.push({p:1, html:`<span class="pill ${late?'bad':'warn'}">该喂 ${feedDue.length}</span>`, body: nums(feedDue) + `<small>${tip}${late?`<br><span style="color:var(--bad)">红框 = 已逾期</span>`:''}</small>`, act:`<button class="btn sm" data-act="batch" data-type="feed">记喂食</button>`});
   }
+  const pe = pendingEat();
+  if(pe.length){ const gs = [...new Set(pe.map(l => l.geckoId))].map(byId).filter(Boolean); tasks.push({p:1.5, html:`<span class="pill gold">待数蟋蟀 ${pe.length}</span>`, body: nums(gs) + `<small>投放后第二天数剩下几只，填上吃了几只</small>`, act:`<button class="btn sm" data-act="eaten">填写</button>`}); }
   const mistDue = A.filter(g => lastLog(g.id,'mist')?.date !== t);
   if(mistDue.length) tasks.push({p:2, html:`<span class="pill">该喷水 ${mistDue.length}</span>`, body: nums(mistDue), act:`<button class="btn sm" data-act="mist-all">全部记喷水</button>`});
   const weighDue = A.filter(g => { if(g.feedPaused) return false; const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null; return wn == null || wn >= SET.weighDays; });
@@ -824,7 +840,18 @@ function vGecko(){
     </dl>${warns.map(w=>`<div class="banner" style="margin-top:10px">${esc(w)}</div>`).join('')}</div>
     <div class="panel chart"><h3>体重曲线</h3><div data-chart="${g.id}"></div></div>
   </div>
-  <div class="panel"><h3>全部记录 <span class="note">${L.length} 条</span></h3>${L.length ? `<div class="timeline">${L.slice(0,200).map(tlRow).join('')}</div>` : '<p class="note">还没有记录。用上面的按钮记第一条。</p>'}</div>`;
+  ${feedHistory(g)}
+  <div class="panel"><h3>全部记录 <span class="note">${L.length} 条 · 按天</span></h3>${L.length ? dayBlocks(L) : '<p class="note">还没有记录。用上面的按钮记第一条。</p>'}</div>`;
+}
+function feedHistory(g){
+  const F = logsOf(g.id, 'feed');
+  if(!F.length) return '';
+  const counted = F.filter(l => isInsect(l) && hasNum(l.eaten)).slice(0, 5);
+  const avg = counted.length ? (counted.reduce((s,l) => s + l.eaten, 0) / counted.length) : null;
+  const rate = counted.filter(l => hasNum(l.given) && l.given > 0);
+  const pct = rate.length ? Math.round(rate.reduce((s,l) => s + l.eaten, 0) / rate.reduce((s,l) => s + l.given, 0) * 100) : null;
+  return `<div class="panel"><div class="head" style="margin-bottom:6px"><h3>喂食记录 <span class="note">${F.length} 顿</span></h3>${avg != null ? `<span class="note">最近 ${counted.length} 顿蟋蟀：平均吃 <b class="mono">${avg.toFixed(1)}</b> 只${pct != null ? `，吃掉 ${pct}%` : ''}</span>` : ''}</div>
+  <div class="tbl-wrap"><table><thead><tr><th>日期</th><th>食物</th><th>吃了几只</th><th>备注</th><th></th></tr></thead><tbody>${F.slice(0, 60).map(l => `<tr><td class="mono">${l.date}</td><td>${esc(l.food||'')}</td><td class="mono">${isInsect(l) ? (hasNum(l.eaten) ? `${l.eaten}${hasNum(l.given)?` / ${l.given}`:''}` : hasNum(l.given) ? `<span class="note">投 ${l.given}，待数</span>` : '—') : (l.ate===false ? '<span class="pill warn">拒食</span>' : esc(l.amount||'—'))}</td><td class="note">${esc(l.note||'')}</td><td class="r"><button class="btn sm ghost" data-act="edit-log" data-id="${l.id}">编辑</button></td></tr>`).join('')}</tbody></table></div>${F.length > 60 ? `<p class="note">只显示最近 60 顿。</p>` : ''}</div>`;
 }
 function feedPanel(g){
   if((g.status||'active') !== 'active') return '';
@@ -839,9 +866,18 @@ function feedPanel(g){
     <dt>最近 5 顿实际</dt><dd>${fp.actualN ? `${ratioBar(fp.actualIns, fp.actualN)} <span class="note">虫子 ${fp.actualIns}，果泥 ${fp.actualN-fp.actualIns}</span>` : '—'}</dd></dl></div>`;
 }
 function logDesc(l){
-  if(l.type === 'feed') return `${esc(l.food||'')}${l.amount?` · ${esc(l.amount)}`:''}${l.ate===false?' · <span class="pill warn">拒食</span>':''}`;
+  if(l.type === 'feed'){ const e = eatTxt(l); return `${esc(l.food||'')}${e?` · <b class="mono">${e}</b>`:''}${l.amount?` · ${esc(l.amount)}`:''}${l.ate===false?' · <span class="pill warn">拒食</span>':''}`; }
   if(l.type === 'weight') return `<b class="mono">${l.value} g</b>`;
   return '';
+}
+function dayBlocks(L){
+  const M = new Map(); L.forEach(l => { const k = l.date || '未填日期'; if(!M.has(k)) M.set(k, []); M.get(k).push(l); });
+  const order = Object.keys(LOGT);
+  const days = [...M].slice(0, 90);
+  return `<div class="days">${days.map(([d, ls]) => { const n = daysSince(d); const wd = parseD(d) ? '周' + '日一二三四五六'[parseD(d).getDay()] : '';
+    ls = ls.slice().sort((a,b) => order.indexOf(a.type) - order.indexOf(b.type));
+    return `<div class="day"><div class="day-h"><b class="mono">${d}</b><span class="note">${wd}${n != null ? ' · ' + ago(n) : ''}</span></div>
+      <div class="day-b">${ls.map(l => `<div class="day-r"><span class="k">${LOGT[l.type]?.t||l.type}</span><span>${logDesc(l)} ${l.note?`<span class="note">${esc(l.note)}</span>`:''}${!logDesc(l) && !l.note ? '<span class="note">已完成</span>' : ''}${sampleMark(l)}</span><button class="btn sm ghost" data-act="edit-log" data-id="${l.id}">编辑</button></div>`).join('')}</div></div>`; }).join('')}</div>${M.size > 90 ? '<p class="note">只显示最近 90 天。</p>' : ''}`;
 }
 function tlRow(l){
   return `<div class="tl"><span class="d">${l.date}</span><span class="k"><span class="pill">${LOGT[l.type]?.t||l.type}</span></span><span>${logDesc(l)} ${l.note?`<span class="note">${esc(l.note)}</span>`:''}${sampleMark(l)}</span><span><button class="btn sm ghost" data-act="edit-log" data-id="${l.id}">编辑</button></span></div>`;
@@ -1099,7 +1135,9 @@ function logForm(l){
     ${fld('类型', `<select name="type">${Object.entries(LOGT).map(([k,v])=>`<option value="${k}" ${t===k?'selected':''}>${v.t}</option>`).join('')}</select>`)}
     ${fld('日期', `<input type="date" name="date" value="${esc(l.date||today())}">`)}
     ${t==='weight' ? fld('体重（g）', `<input name="value" inputmode="decimal" value="${l.value??''}" placeholder="例如：38.5">`) : ''}
-    ${t==='feed' ? fld('食物', `<select name="food">${(l.food && !FOODS.includes(l.food) ? [...FOODS, l.food] : FOODS).map(f=>`<option ${l.food===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`) + fld('份量', `<input name="amount" value="${esc(l.amount)}" placeholder="例如：一小盖 / 3只">`) + `<label class="fld"><span>进食情况</span><select name="ate"><option value="1">吃了</option><option value="0" ${l.ate===false?'selected':''}>拒食</option></select></label>` : ''}
+    ${t==='feed' ? fld('食物', `<select name="food">${(l.food && !FOODS.includes(l.food) ? [...FOODS, l.food] : FOODS).map(f=>`<option ${l.food===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`)
+      + `<label class="fld ins-only"><span>投放蟋蟀（只）</span><input name="given" inputmode="numeric" value="${hasNum(l.given)?l.given:''}" placeholder="例如：9"></label><label class="fld ins-only"><span>吃掉（只）<small class="note">第二天数完再填也行</small></span><input name="eaten" inputmode="numeric" value="${hasNum(l.eaten)?l.eaten:''}" placeholder="投放数 − 剩下的"></label>`
+      + `<label class="fld fr-only"><span>份量</span><input name="amount" value="${esc(l.amount)}" placeholder="例如：一小盖"></label><label class="fld fr-only"><span>进食情况</span><select name="ate"><option value="1">吃了</option><option value="0" ${l.ate===false?'selected':''}>拒食</option></select></label>` : ''}
     ${fld('备注', `<textarea name="note" placeholder="${t==='health'?'例如：尾巴有轻微脱水褶皱':t==='shed'?'例如：脚趾残皮已处理':''}">${esc(l.note)}</textarea>`, true)}
   </div><p class="note" id="ferr"></p>`;
   openModal(`${isNew?'记':'编辑'}${LOGT[t]?.t||'记录'}`, body, async () => {
@@ -1107,10 +1145,37 @@ function logForm(l){
     if(!d.geckoId){ $('#ferr').textContent = '请选择个体。'; return false; }
     const o = {...l, geckoId:d.geckoId, type:d.type, date:d.date||today(), note:d.note.trim()};
     if(d.type==='weight'){ const v = parseFloat(d.value); if(isNaN(v) || v<=0 || v>200){ $('#ferr').textContent = '请填写有效的体重，单位克。'; return false; } o.value = v; } else delete o.value;
-    if(d.type==='feed'){ o.food = d.food; o.amount = (d.amount||'').trim(); o.ate = d.ate !== '0'; } else { delete o.food; delete o.amount; delete o.ate; }
+    if(d.type==='feed'){
+      o.food = d.food;
+      if(isInsectFood(d.food)){
+        const gv = intOrNull(d.given), ea = intOrNull(d.eaten);
+        if(gv != null && ea != null && ea > gv){ $('#ferr').textContent = '吃掉的数量不能比投放的多。'; return false; }
+        if(gv != null) o.given = gv; else delete o.given;
+        if(ea != null){ o.eaten = ea; o.ate = ea > 0; } else { delete o.eaten; o.ate = true; }
+        delete o.amount;
+      } else { o.amount = (d.amount||'').trim(); o.ate = d.ate !== '0'; delete o.given; delete o.eaten; }
+    } else { delete o.food; delete o.amount; delete o.ate; delete o.given; delete o.eaten; }
     await put('logs', o); toast('已记录');
   }, isNew ? '' : `<button type="button" class="btn danger" data-act="del-log" data-id="${l.id}">删除</button>`);
-  $('#mform [name=type]').addEventListener('change', e => { const d = fd(); logForm({...l, ...d, type:e.target.value, value: d.value?parseFloat(d.value):l.value}); });
+  $('#mform [name=type]').addEventListener('change', e => { const d = fd(); logForm({...l, ...d, type:e.target.value, value: d.value?parseFloat(d.value):l.value, given:intOrNull(d.given) ?? l.given, eaten:intOrNull(d.eaten) ?? l.eaten}); });
+  foodToggle();
+}
+function foodToggle(){
+  const sel = $('#mform [name=food]'); if(!sel) return;
+  const upd = () => { const ins = isInsectFood(sel.value); $('#mform').querySelectorAll('.ins-only').forEach(x => x.hidden = !ins); $('#mform').querySelectorAll('.fr-only').forEach(x => x.hidden = ins); };
+  sel.addEventListener('change', upd); upd();
+}
+function eatenForm(){
+  const P = pendingEat();
+  if(!P.length){ toast('没有待数的蟋蟀'); return; }
+  const body = `<p class="note" style="margin:0">投放后第二天数一下剩下几只，填「吃掉」的数量。留空的先不保存。</p><div class="tbl-wrap"><table><thead><tr><th>日期</th><th>个体</th><th>投放</th><th style="width:120px">吃掉</th></tr></thead><tbody>${P.map(l => { const g = byId(l.geckoId); return `<tr><td class="mono">${l.date.slice(5)}</td><td>${g ? `<b class="mono">${esc(g.code||'')}</b> ${esc(g.name)}` : '（已删除）'}</td><td class="mono">${l.given}</td><td><input name="e-${l.id}" inputmode="numeric" placeholder="0–${l.given}" style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);width:100%"></td></tr>`; }).join('')}</tbody></table></div><p class="note" id="ferr"></p>`;
+  openModal('填写吃了几只蟋蟀', body, async () => {
+    const d = fd(); const rows = [];
+    for(const l of P){ const v = intOrNull(d['e-'+l.id]); if(v == null) continue; if(v > l.given){ $('#ferr').textContent = `${gname(l.geckoId)}：吃掉的数量不能比投放的（${l.given}）多。`; return false; } rows.push({...l, eaten:v, ate: v > 0}); }
+    if(!rows.length){ $('#ferr').textContent = '还没有填任何数量。'; return false; }
+    for(const r of rows) await put('logs', r);
+    toast(`已记录 ${rows.length} 只`);
+  });
 }
 
 function batchForm(type='feed', date){
@@ -1118,7 +1183,7 @@ function batchForm(type='feed', date){
   const body = `<div class="form">
     ${fld('类型', `<select name="type">${['feed','mist','weight','clean'].map(k=>`<option value="${k}" ${type===k?'selected':''}>${LOGT[k].t}</option>`).join('')}</select>`)}
     ${fld('日期', `<input type="date" name="date" value="${esc(date||today())}">`)}
-    ${type==='feed' ? fld('食物', `<select name="food">${FOODS.map(f=>`<option>${f}</option>`).join('')}</select>`) + fld('份量', `<input name="amount" placeholder="可选">`) : ''}
+    ${type==='feed' ? fld('食物', `<select name="food">${FOODS.map(f=>`<option>${f}</option>`).join('')}</select>`) + `<label class="fld ins-only"><span>每只投放蟋蟀（只）</span><input name="given" inputmode="numeric" placeholder="例如：9"></label><label class="fld fr-only"><span>份量</span><input name="amount" placeholder="可选"></label>` : ''}
     <div class="fld full"><span>${type==='weight'?'逐个填写体重（g），留空的跳过':'选择个体'} ${type!=='weight'?'<button type="button" class="btn sm ghost" data-act="check-all">全选</button>':''}</span>
     ${type==='weight' ? `<div class="tbl-wrap"><table><tbody>${A.map(g => { const lw = lastW(g.id); return `<tr><td>${sexSym(g.sex)} ${esc(g.name)}</td><td class="note mono">${lw?`上次 ${lw.value}g · ${ago(daysSince(lw.date))}`:'未称过'}</td><td style="width:110px"><input name="w-${g.id}" inputmode="decimal" style="padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);width:100%"></td></tr>`; }).join('')}</tbody></table></div>`
     : `<div class="checks">${A.map(g => `<label><input type="checkbox" name="g" value="${g.id}" ${type==='feed' && feedPlan(g).due ? 'checked' : ''}>${esc(g.name)}${type==='feed' && feedPlan(g).due ? ` <span class="note">${suggestTxt(feedPlan(g).suggest)}</span>` : ''}</label>`).join('')}</div>`}</div>
@@ -1129,13 +1194,14 @@ function batchForm(type='feed', date){
     if(d.type === 'weight'){
       for(const g of A){ const v = parseFloat(d['w-'+g.id]); if(!isNaN(v) && v>0) rows.push({geckoId:g.id, type:'weight', date:d.date, value:v, note:d.note.trim()}); }
     } else {
-      [...$('#mform').querySelectorAll('input[name=g]:checked')].forEach(i => { const o = {geckoId:i.value, type:d.type, date:d.date, note:d.note.trim()}; if(d.type==='feed'){ o.food=d.food; o.amount=(d.amount||'').trim(); o.ate=true; } rows.push(o); });
+      [...$('#mform').querySelectorAll('input[name=g]:checked')].forEach(i => { const o = {geckoId:i.value, type:d.type, date:d.date, note:d.note.trim()}; if(d.type==='feed'){ o.food=d.food; o.ate=true; if(isInsectFood(d.food)){ const gv = intOrNull(d.given); if(gv != null) o.given = gv; } else o.amount=(d.amount||'').trim(); } rows.push(o); });
     }
     if(!rows.length){ $('#ferr').textContent = '没有选中任何个体。'; return false; }
     for(const r of rows) await put('logs', r);
     toast(`已记录 ${rows.length} 条`);
   });
   $('#mform [name=type]').addEventListener('change', e => batchForm(e.target.value, $('#mform [name=date]').value));
+  foodToggle();
 }
 
 function pairForm(p = {}){
@@ -1260,6 +1326,7 @@ document.addEventListener('click', async e => {
     case 'quick': logForm({geckoId:id, type:a.dataset.type, date:today(), food:a.dataset.food||undefined}); break;
     case 'edit-log': logForm({...S.logs.find(l=>l.id===id)}); break;
     case 'del-log': confirmBox('删除这条记录？', () => del('logs', id).then(()=>toast('已删除'))); break;
+    case 'eaten': eatenForm(); break;
     case 'batch': batchForm(a.dataset.type||'feed', a.dataset.date); break;
     case 'check-all': { const cbs = [...$('#mform').querySelectorAll('input[name=g]')]; const all = cbs.every(c=>c.checked); cbs.forEach(c=>c.checked=!all); break; }
     case 'mist-all': { e.preventDefault(); const A = active().filter(g => lastLog(g.id,'mist')?.date !== today()); if(!A.length){ toast('今天都已经喷过水了'); break; } for(const g of A) await put('logs', {geckoId:g.id, type:'mist', date:today()}); toast(`已为 ${A.length} 只记录喷水`); break; }
