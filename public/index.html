@@ -289,6 +289,9 @@ td.r,th.r{text-align:right}
 .tick.on::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--accent-fg);border-width:0 2px 2px 0;transform:rotate(45deg)}
 .gnums{display:flex;flex-wrap:wrap;gap:4px;margin:1px 0 3px}
 .gnum{display:inline-flex;gap:4px;align-items:baseline;min-width:26px;justify-content:center;padding:1px 7px;border:1px solid var(--line);border-radius:6px;font-family:var(--f-mono);font-size:12px;color:var(--fg);text-decoration:none;background:var(--panel)}
+.gnum.late{border-color:var(--bad);color:var(--bad)}
+.task.agg{align-items:flex-start}
+.task.agg > .pill{margin-top:3px}
 .gnum:hover{border-color:var(--accent);color:var(--accent)}
 .gnum b{font-weight:500;color:var(--muted)} .gnum em{font-style:normal;color:var(--warn)}
 .struck{text-decoration:line-through;color:var(--muted)}
@@ -397,7 +400,7 @@ const addDays = (s, n) => { const d = parseD(s); d.setDate(d.getDate()+n); retur
 const ago = n => n == null ? '—' : n === 0 ? '今天' : n === 1 ? '昨天' : n < 0 ? `${-n}天后` : `${n}天前`;
 function age(s){ const n = daysSince(s); if(n==null) return '—'; if(n < 60) return `${n}天`; const m = Math.floor(n/30.44); return m < 24 ? `${m}个月` : `${(m/12).toFixed(1)}岁`; }
 const cmpCode = (a, b) => { const ca = a.code||'', cb = b.code||''; if(!ca !== !cb) return ca ? -1 : 1; return ca.localeCompare(cb, 'zh', {numeric:true}) || (a.name||'').localeCompare(b.name||'', 'zh'); };
-const gNum = (g, extra='') => `<a class="gnum" href="#gecko-${g.id}" title="${esc(g.name)}">${esc(g.code || g.name)}${extra}</a>`;
+const gNum = (g, extra='', cls='') => `<a class="gnum ${cls}" href="#gecko-${g.id}" title="${esc(g.name)}">${esc(g.code || g.name)}${extra}</a>`;
 const byId = id => S.geckos.find(g => g.id === id);
 const gname = id => { const g = byId(id); return g ? g.name : '（已删除）'; };
 const sexSym = s => s === 'M' ? '<span class="sex m" title="公">♂</span>' : s === 'F' ? '<span class="sex f" title="母">♀</span>' : '<span class="sex u" title="未定">?</span>';
@@ -655,6 +658,7 @@ function calDayPanel(d, it){
   const pf = it.plan.pfeed.filter(g => !(it.logs.feed||[]).some(l => l.geckoId === g.id));
   const pw = it.plan.pweight.filter(g => !(it.logs.weight||[]).some(l => l.geckoId === g.id));
   const plan = planRow('pfeed', pf, d === t ? `<button class="btn sm" data-act="batch" data-type="feed" data-date="${d}">记喂食</button>` : '')
+    + (d === t ? (() => { const md = active().filter(g => !(it.logs.mist||[]).some(l => l.geckoId === g.id)); return md.length ? `<div class="task"><span class="pill">该喷水 ${md.length}</span><div class="what"><div class="gnums">${nums(md)}</div></div><button class="btn sm" data-act="mist-all">全部记喷水</button></div>` : ''; })() : '')
     + planRow('pweight', pw, d === t ? `<button class="btn sm" data-act="batch" data-type="weight" data-date="${d}">记体重</button>` : '')
     + (pausedG.length ? `<div class="task"><span class="pill">暂停喂食和称重 ${pausedG.length}</span><div class="what"><div class="gnums">${nums(pausedG)}</div><small>还没有饲养盒，只喷水</small></div></div>` : '')
     + it.hatch.map(c => { const p = S.pairings.find(x => x.id === c.pairingId); return `<div class="task"><span class="pill gold">出壳窗口</span><div class="what">${esc(gname(p?.femaleId))} 的蛋<small>产于 ${c.layDate}，60~90 天，到 ${addDays(c.layDate,90)} 为止</small></div></div>`; }).join('');
@@ -691,17 +695,22 @@ function vOverview(){
   const eggsInc = inc.reduce((s,c) => s + (+c.fertile || +c.eggs || 0), 0);
 
   const tasks = [];
-  A.forEach(g => {
-    const fp = feedPlan(g);
-    if(fp.due) tasks.push({p: fp.overdue?1:2, g, html: fp.overdue ? `<span class="pill bad">喂食逾期</span>` : `<span class="pill warn">今天该喂</span>`,
-      txt: `${fp.tier ? `${fp.tier.label} · 建议喂<b>${suggestTxt(fp.suggest)}</b> · ` : '未称重，按 '+SET.feedDays+' 天间隔 · '}${fp.lf ? `上次 ${ago(fp.n)}（${esc(fp.lf.food||'')}）` : '还没有喂食记录'}`,
-      act:`<button class="btn sm" data-act="quick" data-type="feed" data-id="${g.id}" data-food="${fp.suggest==='insect'?'蟋蟀':fp.suggest==='fruit'?FOODS[0]:''}">记喂食</button>`});
-    const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null;
-    if(!g.feedPaused && (wn == null || wn >= SET.weighDays)) tasks.push({p:3, g, html:`<span class="pill">该称重</span>`, txt: lw ? `上次 ${lw.value}g，${ago(wn)}` : '还没有体重记录', act:`<button class="btn sm" data-act="quick" data-type="weight" data-id="${g.id}">记体重</button>`});
-  });
+  const nums = gs => `<div class="gnums">${gs.slice().sort(cmpCode).map(g => gNum(g, '', g._late ? 'late' : '')).join('')}</div>`;
+  const feedDue = plans.filter(x => x.fp.due).map(x => ({...x.g, _late: x.fp.overdue}));
+  if(feedDue.length){
+    const late = plans.filter(x => x.fp.due && x.fp.overdue).length;
+    const sug = k => plans.filter(x => x.fp.due && x.fp.suggest === k).map(x => x.g).sort(cmpCode).map(g => esc(g.code||g.name));
+    const ins = sug('insect'), fr = sug('fruit'), none = plans.filter(x => x.fp.due && !x.fp.suggest).map(x => x.g).sort(cmpCode).map(g => esc(g.code||g.name));
+    const tip = [ins.length ? `建议喂虫子：${ins.join('、')}` : '', fr.length ? `建议喂果泥：${fr.join('、')}` : '', none.length ? `未称重：${none.join('、')}` : ''].filter(Boolean).join('<br>');
+    tasks.push({p:1, html:`<span class="pill ${late?'bad':'warn'}">该喂 ${feedDue.length}</span>`, body: nums(feedDue) + `<small>${tip}${late?`<br><span style="color:var(--bad)">红框 = 已逾期</span>`:''}</small>`, act:`<button class="btn sm" data-act="batch" data-type="feed">记喂食</button>`});
+  }
+  const mistDue = A.filter(g => lastLog(g.id,'mist')?.date !== t);
+  if(mistDue.length) tasks.push({p:2, html:`<span class="pill">该喷水 ${mistDue.length}</span>`, body: nums(mistDue), act:`<button class="btn sm" data-act="mist-all">全部记喷水</button>`});
+  const weighDue = A.filter(g => { if(g.feedPaused) return false; const lw = lastW(g.id); const wn = lw ? daysSince(lw.date) : null; return wn == null || wn >= SET.weighDays; });
+  if(weighDue.length) tasks.push({p:3, html:`<span class="pill">该称重 ${weighDue.length}</span>`, body: nums(weighDue) + `<small>每 ${SET.weighDays} 天称一次</small>`, act:`<button class="btn sm" data-act="batch" data-type="weight">记体重</button>`});
   S.pairings.filter(p => (p.status||'active')==='active').forEach(p => {
     const fw = lastW(p.femaleId);
-    if(fw && fw.value < SET.minFemale) tasks.push({p:0, g:byId(p.femaleId), html:`<span class="pill bad">母体偏轻</span>`, txt:`正在配对，但最近体重 ${fw.value}g，低于 ${SET.minFemale}g`, act:`<a class="btn sm" href="#breeding">看繁殖</a>`});
+    if(fw && fw.value < SET.minFemale) tasks.push({p:0, html:`<span class="pill bad">母体偏轻</span>`, body:`<a href="#gecko-${p.femaleId}">${esc(gname(p.femaleId))}</a><small>正在配对，但最近体重 ${fw.value}g，低于 ${SET.minFemale}g</small>`, act:`<a class="btn sm" href="#breeding">看繁殖</a>`});
   });
   tasks.sort((a,b) => a.p - b.p);
   const todoRows = () => S.todos.filter(x => !x.done).sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(x => {
@@ -723,7 +732,7 @@ function vOverview(){
     <div class="stat"><span>孵化中的蛋</span><b>${eggsInc}</b><em>${inc.length} 窝</em></div>
   </div>
   <div class="grid g2">
-    <div class="panel"><div class="head" style="margin-bottom:6px"><h3>待办</h3><button class="btn sm" data-act="new-todo">＋ 添加待办</button></div><div class="tasks">${todoRows()}${tasks.length ? tasks.slice(0,14).map(x => `<div class="task">${x.html}<div class="what"><a href="#gecko-${x.g?.id}">${esc(x.g?.name||'')}</a><small>${x.txt}</small></div>${x.act}</div>`).join('') + (tasks.length>14?`<div class="note" style="padding-top:8px">还有 ${tasks.length-14} 项…</div>`:'') : '<p class="note">今天的喂食和称重都处理好了。</p>'}</div></div>
+    <div class="panel"><div class="head" style="margin-bottom:6px"><h3>待办</h3><button class="btn sm" data-act="new-todo">＋ 添加待办</button></div><div class="tasks">${todoRows()}${tasks.length ? tasks.map(x => `<div class="task agg">${x.html}<div class="what">${x.body}</div>${x.act}</div>`).join('') : '<p class="note">今天的喂食、喷水和称重都处理好了。</p>'}</div></div>
     <div class="panel"><h3>喂食方案 <span class="note">按最新体重自动分档</span></h3>${planTable(plans)}</div>
     <div class="panel"><h3>孵化箱</h3><div class="tasks">${incRows || '<p class="note">现在没有在孵的蛋。产蛋后在「繁殖」页登记，这里会显示预计出壳时间（睫角守宫一般 60~90 天，视温度而定）。</p>'}</div></div>
   </div>
